@@ -13,8 +13,8 @@
 
 service: photon-keyserver
 # app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
+app: photon-keyserver
+org: tankred
 
 # You can pin your service to only deploy with a specific Serverless version
 # Check out our docs for more details
@@ -63,10 +63,10 @@ functions:
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-#    events:
-#      - http:
-#          path: users/create
-#          method: get
+     events:
+       - http:
+           path: users/create
+           method: get
 #      - websocket: $connect
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)
