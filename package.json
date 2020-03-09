@@ -1,0 +1,22 @@
+{
+  "name": "photon-keyserver",
+  "version": "0.0.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tanx/photon-keyserver.git"
+  },
+  "scripts": {
+    "start": "sls offline start --port 4000",
+    "test": "sls invoke test"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.635.0",
+    "uuid": "^7.0.2"
+  },
+  "devDependencies": {
+    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-mocha-plugin": "^1.11.0",
+    "serverless-offline": "^5.12.1"
+  }
+}
