@@ -1,13 +1,30 @@
 'use strict';
 
+const DynamoDB = require('./src/service/dynamodb');
+const { v4: uuid } = require('uuid');
+
 module.exports.createKey = async event => {
+
+  let doc;
+  try {
+    const dynamo = new DynamoDB();
+    dynamo.init();
+    const id = uuid();
+    await dynamo.create({
+      id,
+      foo: 'bar',
+    });
+    doc = await dynamo.get({
+      id
+    });
+  } catch (err) {
+    console.error(err)
+  }
+
   return {
     statusCode: 200,
     body: JSON.stringify(
-      {
-        message: 'Go Serverless v1.0! Your function executed successfully!',
-        input: event,
-      },
+      doc,
       null,
       2
     ),

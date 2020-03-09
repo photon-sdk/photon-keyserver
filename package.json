@@ -7,8 +7,8 @@
     "url": "git+https://github.com/tanx/photon-keyserver.git"
   },
   "scripts": {
-    "start": "sls offline start --port 4000",
-    "test": "sls invoke test"
+    "start": "sls offline start",
+    "test": "IS_OFFLINE=true sls invoke test"
   },
   "dependencies": {
     "aws-sdk": "^2.635.0",
