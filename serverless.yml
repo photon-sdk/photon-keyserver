@@ -15,7 +15,8 @@ provider:
   stage: dev
   region: us-east-1
   environment:
-    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    DYNAMODB_TABLE_KEY: ${self:service}-${opt:stage, self:provider.stage}-key
+    DYNAMODB_TABLE_USER: ${self:service}-${opt:stage, self:provider.stage}-user
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -25,7 +26,9 @@ provider:
         - dynamodb:PutItem
         - dynamodb:UpdateItem
         - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+      Resource:
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_KEY}"
+        - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_USER}"
 
 functions:
   createKey:
@@ -43,7 +46,7 @@ functions:
 
 resources:
   Resources:
-    KeysDynamoDbTable:
+    KeyDynamoDbTable:
       Type: 'AWS::DynamoDB::Table'
       DeletionPolicy: Retain
       Properties:
@@ -56,7 +59,21 @@ resources:
             AttributeName: id
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_KEY}
+    UserDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE_USER}
 
 custom:
   dynamodb:

@@ -2,11 +2,9 @@
 
 const AWS = require('aws-sdk');
 
-const TableName = process.env.DYNAMODB_TABLE;
-
 class DynamoDB {
 
-  init() {
+  constructor() {
     let options = {};
     if (process.env.IS_OFFLINE) {
       options = {
@@ -22,26 +20,12 @@ class DynamoDB {
     this._client = new AWS.DynamoDB.DocumentClient(options);
   }
 
-  create(item, type) {
-    const options = {
-      TableName,
-      Item: item
-    };
+  create(options) {
     return this._client.put(options).promise();
   }
 
-  get(query, type) {
-    const options = {
-      TableName,
-      Key: query,
-    };
+  get(options) {
     return this._client.get(options).promise();
-  }
-
-  update(query, diff, type) {
-  }
-
-  remove(query, type) {
   }
 
 }
