@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.635.0",
+    "twilio": "^3.40.0",
     "uuid": "^7.0.2"
   },
   "devDependencies": {
