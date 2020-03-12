@@ -1,8 +1,10 @@
 'use strict';
 
 const DynamoDB = require('./src/service/dynamodb');
+const Twilio = require('./src/service/twilio');
 const Key = require('./src/dao/key');
 
+const twilio = new Twilio();
 const dynamo = new DynamoDB();
 const keyDao = new Key(dynamo);
 

@@ -18,6 +18,7 @@ const TableName = process.env.DYNAMODB_TABLE_KEY;
 
 
 class Key {
+
   constructor(dynamo) {
     this._dynamo = dynamo;
   }
@@ -58,6 +59,7 @@ class Key {
       });
     });
   }
+
 }
 
 module.exports = Key;
