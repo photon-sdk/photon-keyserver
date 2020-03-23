@@ -4,7 +4,8 @@ A keyserver to tie bitcoin wallets to phone numbers
 ## Setup
 
 ```bash
-npm install
+npm i
+npm i -g serverless
 serverless dynamodb install
 serverless offline start
 serverless dynamodb migrate
