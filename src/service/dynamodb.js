@@ -1,9 +1,12 @@
+/**
+ * @fileOverview the AWS DynamoDB service for storing documents.
+ */
+
 'use strict';
 
 const AWS = require('aws-sdk');
 
 class DynamoDB {
-
   constructor() {
     let options = {};
     if (process.env.IS_OFFLINE) {
@@ -20,14 +23,18 @@ class DynamoDB {
     this._client = new AWS.DynamoDB.DocumentClient(options);
   }
 
-  create(options) {
-    return this._client.put(options).promise();
+  async put(TableName, Item) {
+    return this._client.put({ TableName, Item }).promise();
   }
 
-  get(options) {
-    return this._client.get(options).promise();
+  async get(TableName, Key) {
+    const doc = await this._client.get({ TableName, Key }).promise();
+    return doc.Item;
   }
 
+  async remove(TableName, Key) {
+    return this._client.delete({ TableName, Key }).promise();
+  }
 }
 
 module.exports = DynamoDB;
