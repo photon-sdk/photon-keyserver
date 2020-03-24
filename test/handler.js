@@ -47,7 +47,9 @@ describe('handlers', () => {
 
   describe('getKey', () => {
     it('should handle empty query params', async () => {
-      const response = await getKey.run({});
+      const response = await getKey.run({
+        queryStringParameters: null
+      });
       expect(response.statusCode).to.equal(400);
     });
 
