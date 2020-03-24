@@ -12,6 +12,10 @@ module.exports.isCode = code => {
   return typeof code === 'string' && code.length === 6;
 };
 
+module.exports.nap = (ms = 1000) => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
 module.exports.response = (status, body = {}) => ({
   statusCode: status,
   body: JSON.stringify(body),
