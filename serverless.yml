@@ -17,6 +17,7 @@ provider:
   environment:
     TWILIO_ACCOUNT_SID: ${param:TWILIO_ACCOUNT_SID}
     TWILIO_AUTH_TOKEN: ${param:TWILIO_AUTH_TOKEN}
+    TWILIO_FROM_NUMBER: ${param:TWILIO_FROM_NUMBER}
     DYNAMODB_TABLE_KEY: ${self:service}-${opt:stage, self:provider.stage}-key
     DYNAMODB_TABLE_USER: ${self:service}-${opt:stage, self:provider.stage}-user
   iamRoleStatements:
