@@ -82,7 +82,7 @@ class User {
   async _generateCode() {
     const buf = await promisify(crypto.randomBytes)(4);
     const int = parseInt(buf.toString('hex'), 16);
-    return (int % 1000000).toString();
+    return (int % 1000000).toString().padStart(6, '0');
   }
 }
 

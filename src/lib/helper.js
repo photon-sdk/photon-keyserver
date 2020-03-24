@@ -17,7 +17,7 @@ module.exports.isPhone = phone => {
 };
 
 module.exports.isCode = code => {
-  return /^[0-9]{6}$/.test(code);
+  return /^\d{6}$/.test(code);
 };
 
 module.exports.nap = (ms = 1000) => {
