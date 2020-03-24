@@ -5,6 +5,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const { promisify } = require('util');
 
 /**
  * Database documents have the format:
@@ -78,16 +79,9 @@ class User {
   }
 
   async _generateCode() {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(4, (err, buf) => {
-        if (err) {
-          reject(err);
-        } else {
-          const int = parseInt(buf.toString('hex'), 16);
-          resolve((int % 1000000).toString());
-        }
-      });
-    });
+    const buf = await promisify(crypto.randomBytes)(4);
+    const int = parseInt(buf.toString('hex'), 16);
+    return (int % 1000000).toString();
   }
 }
 

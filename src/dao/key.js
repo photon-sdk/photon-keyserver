@@ -5,6 +5,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const { promisify } = require('util');
 const { v4: uuid } = require('uuid');
 
 /**
@@ -40,15 +41,8 @@ class Key {
   }
 
   async _generateKey() {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(KEY_LEN, (err, buf) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(buf.toString('hex'));
-        }
-      });
-    });
+    const buf = await promisify(crypto.randomBytes)(KEY_LEN);
+    return buf.toString('hex');
   }
 }
 
