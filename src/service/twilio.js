@@ -1,17 +1,23 @@
+/**
+ * @fileOverview the Twilio service for sending SMS messages.
+ */
+
 'use strict';
 
 class Twilio {
-
   constructor() {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     this._client = require('twilio')(accountSid, authToken);
   }
 
-  async send({ to, message = '' }) {
+  async send({ phone, code }) {
+    if (!phone || !code) {
+      throw new Error('Invalid args')
+    }
     const sms = {
-      to: to,
-      body: message,
+      to: phone,
+      body: `Your verification code is: ${code}`,
       from: process.env.TWILIO_FROM_NUMBER,
     };
     try {
@@ -20,7 +26,6 @@ class Twilio {
       console.error('Twilio SMS send failed!', err);
     }
   }
-
 }
 
 module.exports = Twilio;
