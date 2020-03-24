@@ -47,7 +47,7 @@ describe('handlers', () => {
 
     it('should not find unverified number', async () => {
       const response = await getKey.run({
-        queryStringParameters: { phone }
+        queryStringParameters: { phone: encodeURIComponent(phone) }
       });
       expect(response.statusCode).to.equal(404);
     });
@@ -78,9 +78,7 @@ describe('handlers', () => {
   describe('getKey', () => {
     it('should read key document', async () => {
       const response = await getKey.run({
-        queryStringParameters: {
-          phone
-        }
+        queryStringParameters: { phone: encodeURIComponent(phone) }
       });
       expect(response.statusCode).to.equal(200);
     });

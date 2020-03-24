@@ -9,7 +9,11 @@ module.exports.body = event => {
 };
 
 module.exports.query = event => {
-  return event.queryStringParameters || {};
+  const query = {};
+  Object.keys(event.queryStringParameters || {}).forEach(key => {
+    query[key] = decodeURIComponent(event.queryStringParameters[key]);
+  });
+  return query;
 };
 
 module.exports.isPhone = phone => {
