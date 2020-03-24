@@ -6,6 +6,7 @@
 
 const crypto = require('crypto');
 const { promisify } = require('util');
+const { isPhone, isCode } = require('../lib/helper');
 
 /**
  * Database documents have the format:
@@ -25,7 +26,7 @@ class User {
   }
 
   async create({ phone, keyId }) {
-    if (!phone || !keyId) {
+    if (!isPhone(phone) || !keyId) {
       throw new Error('Invalid args');
     }
     const code = await this._generateCode();
@@ -40,7 +41,7 @@ class User {
   }
 
   async verify({ phone, code }) {
-    if (!phone || !code) {
+    if (!isPhone(phone) || !isCode(code)) {
       throw new Error('Invalid args');
     }
     const user = await this._dynamo.get(TABLE, { id: phone });
@@ -55,7 +56,7 @@ class User {
 
 
   async getVerified({ phone }) {
-    if (!phone) {
+    if (!isPhone(phone)) {
       throw new Error('Invalid args');
     }
     const user = await this._dynamo.get(TABLE, { id: phone });
@@ -66,7 +67,7 @@ class User {
   }
 
   async setNewCode({ phone }) {
-    if (!phone) {
+    if (!isPhone(phone)) {
       throw new Error('Invalid args');
     }
     const user = await this._dynamo.get(TABLE, { id: phone });

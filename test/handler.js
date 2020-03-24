@@ -12,7 +12,7 @@ let getKey = mochaPlugin.getWrapper('getKey', '/handler.js', 'getKey');
 describe('handlers', () => {
   const TEST_DELAY = 0;
   const TABLE_USER = process.env.DYNAMODB_TABLE_USER;
-  const phone = '004917512345678';
+  const phone = '+4917512345678';
   let keyId;
   let dynamo;
   let code1

@@ -13,11 +13,11 @@ module.exports.query = event => {
 };
 
 module.exports.isPhone = phone => {
-  return typeof phone === 'string' && phone.length;
+  return /^\+[1-9]\d{1,14}$/.test(phone);
 };
 
 module.exports.isCode = code => {
-  return typeof code === 'string' && code.length === 6;
+  return /^[0-9]{6}$/.test(code);
 };
 
 module.exports.nap = (ms = 1000) => {
