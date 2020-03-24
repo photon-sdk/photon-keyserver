@@ -15,6 +15,8 @@ provider:
   stage: dev
   region: us-east-1
   environment:
+    TWILIO_ACCOUNT_SID: ${param:TWILIO_ACCOUNT_SID}
+    TWILIO_AUTH_TOKEN: ${param:TWILIO_AUTH_TOKEN}
     DYNAMODB_TABLE_KEY: ${self:service}-${opt:stage, self:provider.stage}-key
     DYNAMODB_TABLE_USER: ${self:service}-${opt:stage, self:provider.stage}-user
   iamRoleStatements:
