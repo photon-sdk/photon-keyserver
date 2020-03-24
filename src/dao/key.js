@@ -15,6 +15,7 @@ const { v4: uuid } = require('uuid');
  * }
  */
 const TABLE = process.env.DYNAMODB_TABLE_KEY;
+const KEY_LEN = 32;
 
 class Key {
   constructor(dynamo) {
@@ -32,12 +33,15 @@ class Key {
   }
 
   async get({ id }) {
+    if (!id) {
+      throw new Error('Invalid args');
+    }
     return this._dynamo.get(TABLE, { id });
   }
 
   async _generateKey() {
     return new Promise((resolve, reject) => {
-      crypto.randomBytes(32, (err, buf) => {
+      crypto.randomBytes(KEY_LEN, (err, buf) => {
         if (err) {
           reject(err);
         } else {
