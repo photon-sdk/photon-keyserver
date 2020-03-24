@@ -20,10 +20,6 @@ module.exports.isCode = code => {
   return /^\d{6}$/.test(code);
 };
 
-module.exports.nap = (ms = 1000) => {
-  return new Promise(resolve => setTimeout(resolve, ms));
-};
-
 module.exports.response = (status, body = {}) => ({
   statusCode: status,
   body: JSON.stringify(body),
