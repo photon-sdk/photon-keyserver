@@ -43,6 +43,12 @@ functions:
      - http:
          path: /v1/key
          method: get
+  verifyUser:
+    handler: handler.verifyUser
+    events:
+     - http:
+         path: /v1/user
+         method: put
 
 resources:
   Resources:

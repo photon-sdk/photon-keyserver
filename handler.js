@@ -2,36 +2,88 @@
 
 const DynamoDB = require('./src/service/dynamodb');
 const Twilio = require('./src/service/twilio');
-const Key = require('./src/dao/key');
+const UserDao = require('./src/dao/user');
+const KeyDao = require('./src/dao/key');
 
-const twilio = new Twilio();
+// const twilio = new Twilio();
 const dynamo = new DynamoDB();
-const keyDao = new Key(dynamo);
+const keyDao = new KeyDao(dynamo);
+const userDao = new UserDao(dynamo);
+
+//
+// key handlers
+//
 
 module.exports.createKey = async event => {
-  let id;
   try {
-    id = await keyDao.create();
+    const { phone } = event.body;
+    if (!phone) {
+      return error(400, 'Invalid request');
+    }
+    const user = await userDao.getVerified({ phone });
+    if (user) {
+      return error(409, 'Key already exists for user id');
+    }
+    const id = await keyDao.create();
+    const code = await userDao.create({ phone, keyId: id });
+    // twilio.send({ phone, code });
+    return response(201, { id });
   } catch (err) {
-    console.error(err)
+    return error(500, 'Error creating key', err);
   }
-  return {
-    statusCode: 200,
-    body: JSON.stringify({ id }),
-  };
 };
 
 module.exports.getKey = async event => {
-  let key;
   try {
-    key = await keyDao.get({
-      id: event.queryStringParameters.id
-    });
+    const { phone } = event.queryStringParameters;
+    if (!phone) {
+      return error(400, 'Invalid request');
+    }
+    const user = await userDao.getVerified({ phone });
+    if (!user) {
+      return error(404, 'Invalid user id');
+    }
+    const code = await userDao.setNewCode({ phone });
+    // twilio.send({ phone, code });
+    return response(200);
   } catch (err) {
-    console.error(err)
+    return error(500, 'Error reading key', err);
   }
-  return {
-    statusCode: 200,
-    body: JSON.stringify(key),
-  };
+};
+
+//
+// user handlers
+//
+
+module.exports.verifyUser = async event => {
+  try {
+    const { phone, code } = event.body;
+    if (!phone || !code) {
+      return error(400, 'Invalid request');
+    }
+    const keyId = await userDao.verify({ phone, code });
+    if (!keyId) {
+      return error(404, 'Invalid code');
+    }
+    const key = await keyDao.get({ id: keyId });
+    return response(200, key);
+  } catch (err) {
+    return error(500, 'Error creating key', err);
+  }
+};
+
+//
+// helpers
+//
+
+const response = (status, body = {}) => ({
+  statusCode: status,
+  body: JSON.stringify(body),
+});
+
+const error = (status, message, err) => {
+  if (err) {
+    console.error(err);
+  }
+  return response(status, { message })
 };
