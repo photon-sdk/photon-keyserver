@@ -28,6 +28,11 @@ describe('handlers', () => {
   });
 
   describe('createKey', () => {
+    it('should handle empty body', async () => {
+      const response = await createKey.run({});
+      expect(response.statusCode).to.equal(400);
+    });
+
     it('should create key document', async () => {
       const response = await createKey.run({
         body: {
@@ -41,6 +46,11 @@ describe('handlers', () => {
   });
 
   describe('getKey', () => {
+    it('should handle empty query params', async () => {
+      const response = await getKey.run({});
+      expect(response.statusCode).to.equal(400);
+    });
+
     it('should not find unverified number', async () => {
       const response = await getKey.run({
         queryStringParameters: { phone }
@@ -53,6 +63,11 @@ describe('handlers', () => {
     before(async () => {
       code1 = (await dynamo.get(TABLE_USER, { id: phone })).code;
       expect(code1).to.not.be.empty;
+    });
+
+    it('should handle empty body', async () => {
+      const response = await verifyUser.run({});
+      expect(response.statusCode).to.equal(400);
     });
 
     it('should set user ID as verified', async () => {

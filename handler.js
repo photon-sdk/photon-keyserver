@@ -15,9 +15,9 @@ const userDao = new UserDao(dynamo);
 // key handlers
 //
 
-module.exports.createKey = async event => {
+module.exports.createKey = async ({ body = {} }) => {
   try {
-    const { phone } = event.body;
+    const { phone } = body;
     if (!isPhone(phone)) {
       return error(400, 'Invalid request');
     }
@@ -34,9 +34,9 @@ module.exports.createKey = async event => {
   }
 };
 
-module.exports.getKey = async event => {
+module.exports.getKey = async ({ queryStringParameters = {} }) => {
   try {
-    const { phone } = event.queryStringParameters;
+    const { phone } = queryStringParameters;
     if (!isPhone(phone)) {
       return error(400, 'Invalid request');
     }
@@ -56,9 +56,9 @@ module.exports.getKey = async event => {
 // user handlers
 //
 
-module.exports.verifyUser = async event => {
+module.exports.verifyUser = async ({ body = {} }) => {
   try {
-    const { phone, code } = event.body;
+    const { phone, code } = body;
     if (!isPhone(phone) || !isCode(code)) {
       return error(400, 'Invalid request');
     }
