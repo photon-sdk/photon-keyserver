@@ -4,7 +4,7 @@ const DynamoDB = require('./src/service/dynamodb');
 const Twilio = require('./src/service/twilio');
 const UserDao = require('./src/dao/user');
 const KeyDao = require('./src/dao/key');
-const { response, error, isPhone, isCode } = require('./src/lib/helper');
+const { body, query, response, error, isPhone, isCode } = require('./src/lib/helper');
 
 const twilio = new Twilio();
 const dynamo = new DynamoDB();
@@ -17,7 +17,7 @@ const userDao = new UserDao(dynamo);
 
 module.exports.createKey = async event => {
   try {
-    const { phone } = event.body || {};
+    const { phone } = body(event);
     if (!isPhone(phone)) {
       return error(400, 'Invalid request');
     }
@@ -36,7 +36,7 @@ module.exports.createKey = async event => {
 
 module.exports.getKey = async event => {
   try {
-    const { phone } = event.queryStringParameters || {};
+    const { phone } = query(event);
     if (!isPhone(phone)) {
       return error(400, 'Invalid request');
     }
@@ -58,7 +58,7 @@ module.exports.getKey = async event => {
 
 module.exports.verifyUser = async event => {
   try {
-    const { phone, code } = event.body || {};
+    const { phone, code } = body(event);
     if (!isPhone(phone) || !isCode(code)) {
       return error(400, 'Invalid request');
     }

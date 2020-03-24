@@ -4,6 +4,14 @@
 
 'use strict';
 
+module.exports.body = event => {
+  return JSON.parse(event.body || '{}');
+};
+
+module.exports.query = event => {
+  return event.queryStringParameters || {};
+};
+
 module.exports.isPhone = phone => {
   return typeof phone === 'string' && phone.length;
 };
