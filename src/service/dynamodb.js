@@ -13,11 +13,8 @@ class DynamoDB {
       options = {
         region: 'localhost',
         endpoint: 'http://localhost:8000',
-        credentials: new AWS.Credentials({
-          accessKeyId: 'akid',
-          secretAccessKey: 'secret',
-          sessionToken: 'session'
-        })
+        accessKeyId: 'akid',
+        secretAccessKey: 'secret',
       };
     }
     this._client = new AWS.DynamoDB.DocumentClient(options);

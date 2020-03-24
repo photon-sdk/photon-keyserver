@@ -6,7 +6,7 @@ const UserDao = require('./src/dao/user');
 const KeyDao = require('./src/dao/key');
 const { response, error, isPhone, isCode } = require('./src/lib/helper');
 
-// const twilio = new Twilio();
+const twilio = new Twilio();
 const dynamo = new DynamoDB();
 const keyDao = new KeyDao(dynamo);
 const userDao = new UserDao(dynamo);
@@ -27,7 +27,7 @@ module.exports.createKey = async event => {
     }
     const id = await keyDao.create();
     const code = await userDao.create({ phone, keyId: id });
-    // twilio.send({ phone, code });
+    twilio.send({ phone, code });
     return response(201, { id });
   } catch (err) {
     return error(500, 'Error creating key', err);
@@ -45,7 +45,7 @@ module.exports.getKey = async event => {
       return error(404, 'Invalid user id');
     }
     const code = await userDao.setNewCode({ phone });
-    // twilio.send({ phone, code });
+    twilio.send({ phone, code });
     return response(200);
   } catch (err) {
     return error(500, 'Error reading key', err);

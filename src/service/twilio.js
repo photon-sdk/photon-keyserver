@@ -6,9 +6,13 @@
 
 class Twilio {
   constructor() {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    this._client = require('twilio')(accountSid, authToken);
+    if (process.env.IS_OFFLINE) {
+      this._client = { messages: { create: () => {} } }
+    } else {
+      const accountSid = process.env.TWILIO_ACCOUNT_SID;
+      const authToken = process.env.TWILIO_AUTH_TOKEN;
+      this._client = require('twilio')(accountSid, authToken);
+    }
   }
 
   async send({ phone, code }) {
