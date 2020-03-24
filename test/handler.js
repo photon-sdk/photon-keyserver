@@ -2,7 +2,6 @@
 
 const mochaPlugin = require('serverless-mocha-plugin');
 const DynamoDB = require('../src/service/dynamodb');
-const { nap } = require('../src/lib/helper');
 const expect = mochaPlugin.chai.expect;
 let createKey = mochaPlugin.getWrapper('createKey', '/handler.js', 'createKey');
 let verifyUser = mochaPlugin.getWrapper('verifyUser', '/handler.js', 'verifyUser');
@@ -10,7 +9,6 @@ let getKey = mochaPlugin.getWrapper('getKey', '/handler.js', 'getKey');
 
 
 describe('handlers', () => {
-  const TEST_DELAY = 0;
   const TABLE_USER = process.env.DYNAMODB_TABLE_USER;
   const phone = '+4917512345678';
   let keyId;
@@ -21,10 +19,6 @@ describe('handlers', () => {
   before(async () => {
     dynamo = new DynamoDB();
     await dynamo.remove(TABLE_USER, { id: phone });
-  });
-
-  beforeEach(async () => {
-    await nap(TEST_DELAY);
   });
 
   describe('createKey', () => {
