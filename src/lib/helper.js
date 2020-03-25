@@ -8,12 +8,12 @@ module.exports.body = event => {
   return JSON.parse(event.body || '{}');
 };
 
-module.exports.query = event => {
-  const query = {};
-  Object.keys(event.queryStringParameters || {}).forEach(key => {
-    query[key] = decodeURIComponent(event.queryStringParameters[key]);
+module.exports.path = event => {
+  const path = {};
+  Object.keys(event.pathParameters || {}).forEach(key => {
+    path[key] = decodeURIComponent(event.pathParameters[key]);
   });
-  return query;
+  return path;
 };
 
 module.exports.isPhone = phone => {

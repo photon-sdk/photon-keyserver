@@ -4,7 +4,7 @@ const mochaPlugin = require('serverless-mocha-plugin');
 const DynamoDB = require('../src/service/dynamodb');
 const expect = mochaPlugin.chai.expect;
 let createKey = mochaPlugin.getWrapper('createKey', '/handler.js', 'createKey');
-let verifyUser = mochaPlugin.getWrapper('verifyUser', '/handler.js', 'verifyUser');
+let verifyKey = mochaPlugin.getWrapper('verifyKey', '/handler.js', 'verifyKey');
 let getKey = mochaPlugin.getWrapper('getKey', '/handler.js', 'getKey');
 
 
@@ -29,7 +29,7 @@ describe('handlers', () => {
 
     it('should create key document', async () => {
       const response = await createKey.run({
-        body: JSON.stringify({ phone })
+        body: JSON.stringify({ phone }),
       });
       keyId = JSON.parse(response.body).id;
       expect(keyId).to.not.be.empty;
@@ -40,33 +40,34 @@ describe('handlers', () => {
   describe('getKey', () => {
     it('should handle empty query params', async () => {
       const response = await getKey.run({
-        queryStringParameters: null
+        pathParameters: null,
       });
       expect(response.statusCode).to.equal(400);
     });
 
     it('should not find unverified number', async () => {
       const response = await getKey.run({
-        queryStringParameters: { phone: encodeURIComponent(phone) }
+        pathParameters: { phone: encodeURIComponent(phone) },
       });
       expect(response.statusCode).to.equal(404);
     });
   });
 
-  describe('verifyUser', () => {
+  describe('verifyKey', () => {
     before(async () => {
       code1 = (await dynamo.get(TABLE_USER, { id: phone })).code;
       expect(code1).to.not.be.empty;
     });
 
     it('should handle empty body', async () => {
-      const response = await verifyUser.run({});
+      const response = await verifyKey.run({});
       expect(response.statusCode).to.equal(400);
     });
 
     it('should set user ID as verified', async () => {
-      const response = await verifyUser.run({
-        body: JSON.stringify({ phone, code: code1 })
+      const response = await verifyKey.run({
+        pathParameters: { phone: encodeURIComponent(phone) },
+        body: JSON.stringify({ code: code1 }),
       });
       const key = JSON.parse(response.body);
       expect(key.id).to.equal(keyId);
@@ -78,13 +79,13 @@ describe('handlers', () => {
   describe('getKey', () => {
     it('should read key document', async () => {
       const response = await getKey.run({
-        queryStringParameters: { phone: encodeURIComponent(phone) }
+        pathParameters: { phone: encodeURIComponent(phone) },
       });
       expect(response.statusCode).to.equal(200);
     });
   });
 
-  describe('verifyUser', () => {
+  describe('verifyKey', () => {
     before(async () => {
       code2 = (await dynamo.get(TABLE_USER, { id: phone })).code;
       expect(code2).to.not.be.empty;
@@ -92,8 +93,9 @@ describe('handlers', () => {
 
     it('should verify a different code', async () => {
       expect(code1).to.not.equal(code2);
-      const response = await verifyUser.run({
-        body: JSON.stringify({ phone, code: code2 })
+      const response = await verifyKey.run({
+        pathParameters: { phone: encodeURIComponent(phone) },
+        body: JSON.stringify({ code: code2 }),
       });
       expect(response.statusCode).to.equal(200);
     });
