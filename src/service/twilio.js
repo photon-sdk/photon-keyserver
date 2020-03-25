@@ -4,6 +4,8 @@
 
 'use strict';
 
+const { isPhone, isCode } = require('../lib/helper');
+
 class Twilio {
   constructor() {
     if (process.env.IS_OFFLINE) {
@@ -16,7 +18,7 @@ class Twilio {
   }
 
   async send({ phone, code }) {
-    if (!phone || !code) {
+    if (!isPhone(phone) || !isCode(code)) {
       throw new Error('Invalid args')
     }
     const sms = {
