@@ -13,7 +13,7 @@ provider:
   name: aws
   runtime: nodejs12.x
   stage: dev
-  region: us-east-1
+  region: eu-central-1
   environment:
     TWILIO_ACCOUNT_SID: ${param:TWILIO_ACCOUNT_SID}
     TWILIO_AUTH_TOKEN: ${param:TWILIO_AUTH_TOKEN}
