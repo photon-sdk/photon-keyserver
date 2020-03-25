@@ -27,7 +27,7 @@ module.exports.createKey = async event => {
     }
     const id = await keyDao.create();
     const code = await userDao.create({ phone, keyId: id });
-    twilio.send({ phone, code });
+    await twilio.send({ phone, code });
     return response(201, { id });
   } catch (err) {
     return error(500, 'Error creating key', err);
@@ -45,7 +45,7 @@ module.exports.getKey = async event => {
       return error(404, 'Invalid user id');
     }
     const code = await userDao.setNewCode({ phone });
-    twilio.send({ phone, code });
+    await twilio.send({ phone, code });
     return response(200);
   } catch (err) {
     return error(500, 'Error reading key', err);
