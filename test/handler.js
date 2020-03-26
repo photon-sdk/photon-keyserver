@@ -40,14 +40,14 @@ describe('handlers', () => {
   describe('getKey', () => {
     it('should handle empty query params', async () => {
       const response = await getKey.run({
-        pathParameters: null,
+        queryStringParameters: null,
       });
       expect(response.statusCode).to.equal(400);
     });
 
     it('should not find unverified number', async () => {
       const response = await getKey.run({
-        pathParameters: { phone: encodeURIComponent(phone) },
+        queryStringParameters: { phone: encodeURIComponent(phone) },
       });
       expect(response.statusCode).to.equal(404);
     });
@@ -66,8 +66,7 @@ describe('handlers', () => {
 
     it('should set user ID as verified', async () => {
       const response = await verifyKey.run({
-        pathParameters: { phone: encodeURIComponent(phone) },
-        body: JSON.stringify({ code: code1 }),
+        body: JSON.stringify({ phone, code: code1 }),
       });
       const key = JSON.parse(response.body);
       expect(key.id).to.equal(keyId);
@@ -79,7 +78,7 @@ describe('handlers', () => {
   describe('getKey', () => {
     it('should read key document', async () => {
       const response = await getKey.run({
-        pathParameters: { phone: encodeURIComponent(phone) },
+        queryStringParameters: { phone: encodeURIComponent(phone) },
       });
       expect(response.statusCode).to.equal(200);
     });
@@ -94,8 +93,7 @@ describe('handlers', () => {
     it('should verify a different code', async () => {
       expect(code1).to.not.equal(code2);
       const response = await verifyKey.run({
-        pathParameters: { phone: encodeURIComponent(phone) },
-        body: JSON.stringify({ code: code2 }),
+        body: JSON.stringify({ phone, code: code2 }),
       });
       expect(response.statusCode).to.equal(200);
     });
