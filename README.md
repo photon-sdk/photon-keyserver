@@ -14,6 +14,6 @@ serverless dynamodb migrate
 ## Run tests locally
 
 ```bash
-npm start    # in terminal tab 1
-npm run test # in terminal tab 2
+npm start  # in terminal tab 1
+npm test   # in terminal tab 2
 ```
