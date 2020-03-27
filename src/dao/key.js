@@ -4,9 +4,8 @@
 
 'use strict'
 
-const crypto = require('crypto')
-const { promisify } = require('util')
 const { v4: uuid } = require('uuid')
+const { generateKey } = require('../lib/verify')
 
 /**
  * Database documents have the format:
@@ -16,7 +15,6 @@ const { v4: uuid } = require('uuid')
  * }
  */
 const TABLE = process.env.DYNAMODB_TABLE_KEY
-const KEY_LEN = 32
 
 class Key {
   constructor (dynamo) {
@@ -25,7 +23,7 @@ class Key {
 
   async create () {
     const id = uuid()
-    const encryptionKey = await this._generateKey()
+    const encryptionKey = await generateKey()
     await this._dynamo.put(TABLE, {
       id,
       encryptionKey
@@ -38,11 +36,6 @@ class Key {
       throw new Error('Invalid args')
     }
     return this._dynamo.get(TABLE, { id })
-  }
-
-  async _generateKey () {
-    const buf = await promisify(crypto.randomBytes)(KEY_LEN)
-    return buf.toString('hex')
   }
 }
 

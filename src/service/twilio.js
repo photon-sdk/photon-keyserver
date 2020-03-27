@@ -4,7 +4,7 @@
 
 'use strict'
 
-const { isPhone, isCode } = require('../lib/helper')
+const { isPhone, isCode } = require('../lib/verify')
 
 class Twilio {
   constructor () {

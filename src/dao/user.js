@@ -4,9 +4,7 @@
 
 'use strict'
 
-const crypto = require('crypto')
-const { promisify } = require('util')
-const { isPhone, isCode } = require('../lib/helper')
+const { isPhone, isCode, generateCode } = require('../lib/verify')
 
 /**
  * Database documents have the format:
@@ -29,7 +27,7 @@ class User {
     if (!isPhone(phone) || !keyId) {
       throw new Error('Invalid args')
     }
-    const code = await this._generateCode()
+    const code = await generateCode()
     await this._dynamo.put(TABLE, {
       id: phone,
       type: 'phone',
@@ -49,7 +47,7 @@ class User {
       return null
     }
     user.verified = true
-    user.code = await this._generateCode()
+    user.code = await generateCode()
     await this._dynamo.put(TABLE, user)
     return user
   }
@@ -73,15 +71,9 @@ class User {
     if (!user) {
       throw new Error('User not found')
     }
-    user.code = await this._generateCode()
+    user.code = await generateCode()
     await this._dynamo.put(TABLE, user)
     return user.code
-  }
-
-  async _generateCode () {
-    const buf = await promisify(crypto.randomBytes)(4)
-    const str = parseInt(buf.toString('hex'), 16).toString()
-    return str.substr(str.length - 6).padStart(6, '0')
   }
 }
 

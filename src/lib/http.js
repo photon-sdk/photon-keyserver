@@ -1,5 +1,5 @@
 /**
- * @fileOverview helper functions that can be reused
+ * @fileOverview http request parser functions
  */
 
 'use strict'
@@ -22,14 +22,6 @@ module.exports.query = event => {
     query[key] = decodeURIComponent(event.queryStringParameters[key])
   })
   return query
-}
-
-module.exports.isPhone = phone => {
-  return /^\+[1-9]\d{1,14}$/.test(phone)
-}
-
-module.exports.isCode = code => {
-  return /^\d{6}$/.test(code)
 }
 
 module.exports.response = (status, body = {}) => ({

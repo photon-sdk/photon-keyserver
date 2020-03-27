@@ -4,7 +4,8 @@
 
 'use strict'
 
-const { path, body, query, response, error, isPhone, isCode } = require('./helper')
+const { isPhone, isCode } = require('./verify')
+const { path, body, query, response, error } = require('./http')
 
 class Proxy {
   constructor (twilio, keyDao, userDao) {
