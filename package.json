@@ -8,7 +8,9 @@
   },
   "scripts": {
     "start": "sls offline start",
-    "test": "IS_OFFLINE=true sls invoke test"
+    "test": "npm run -s test:lint && npm run -s test:integration",
+    "test:lint": "standard *.js 'src/**/*.js' 'test/**/*.js'",
+    "test:integration": "IS_OFFLINE=true sls invoke test"
   },
   "dependencies": {
     "aws-sdk": "^2.635.0",
@@ -18,6 +20,7 @@
   "devDependencies": {
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-mocha-plugin": "^1.11.0",
-    "serverless-offline": "^5.12.1"
+    "serverless-offline": "^5.12.1",
+    "standard": "^14.3.3"
   }
 }
