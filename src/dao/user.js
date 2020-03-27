@@ -51,7 +51,7 @@ class User {
     user.verified = true;
     user.code = await this._generateCode();
     await this._dynamo.put(TABLE, user);
-    return user.keyId;
+    return user;
   }
 
 

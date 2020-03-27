@@ -4,7 +4,7 @@
 
 'use strict';
 
-const { body, query, response, error, isPhone, isCode } = require('./helper');
+const { path, body, query, response, error, isPhone, isCode } = require('./helper');
 
 class Proxy {
   constructor(twilio, keyDao, userDao) {
@@ -34,13 +34,14 @@ class Proxy {
 
   async getKey(event) {
     try {
+      const { keyId } = path(event);
       const { phone } = query(event);
-      if (!isPhone(phone)) {
+      if (!keyId || !isPhone(phone)) {
         return error(400, 'Invalid request');
       }
       const user = await this._userDao.getVerified({ phone });
-      if (!user) {
-        return error(404, 'Invalid user id');
+      if (!user || user.keyId !== keyId) {
+        return error(404, 'Invalid params');
       }
       const code = await this._userDao.setNewCode({ phone });
       await this._twilio.send({ phone, code });
@@ -52,14 +53,15 @@ class Proxy {
 
   async verifyKey(event) {
     try {
-      const { op } = query(event);
+      const { keyId } = path(event);
       const { phone, code } = body(event);
-      if (!isPhone(phone) || !isCode(code)) {
+      const { op } = query(event);
+      if (!keyId || !isPhone(phone) || !isCode(code)) {
         return error(400, 'Invalid request');
       }
-      const keyId = await this._userDao.verify({ phone, code });
-      if (!keyId) {
-        return error(404, 'Invalid code');
+      const user = await this._userDao.verify({ phone, code });
+      if (!user || user.keyId !== keyId) {
+        return error(404, 'Invalid params');
       }
       const key = await this._keyDao.get({ id: keyId });
       return response(200, key);

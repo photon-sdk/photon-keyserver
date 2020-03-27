@@ -44,13 +44,13 @@ functions:
     handler: handler.getKey
     events:
      - http:
-         path: /v1/key
+         path: /v1/key/{keyId}
          method: get
   verifyKey:
     handler: handler.verifyKey
     events:
      - http:
-         path: /v1/key
+         path: /v1/key/{keyId}
          method: put
 
 resources:
