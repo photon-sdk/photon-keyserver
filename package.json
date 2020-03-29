@@ -21,6 +21,8 @@
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-mocha-plugin": "^1.11.0",
     "serverless-offline": "^5.12.1",
-    "standard": "^14.3.3"
+    "sinon": "^9.0.1",
+    "standard": "^14.3.3",
+    "unexpected": "^11.14.0"
   }
 }
