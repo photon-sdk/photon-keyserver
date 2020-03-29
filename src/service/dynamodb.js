@@ -6,32 +6,30 @@
 
 const AWS = require('aws-sdk')
 
-class DynamoDB {
-  constructor () {
-    let options = {}
-    if (process.env.IS_OFFLINE) {
-      options = {
-        region: 'localhost',
-        endpoint: 'http://localhost:8000',
-        accessKeyId: 'akid',
-        secretAccessKey: 'secret'
-      }
+let _client
+
+exports.init = () => {
+  let options = {}
+  if (process.env.IS_OFFLINE) {
+    options = {
+      region: 'localhost',
+      endpoint: 'http://localhost:8000',
+      accessKeyId: 'akid',
+      secretAccessKey: 'secret'
     }
-    this._client = new AWS.DynamoDB.DocumentClient(options)
   }
-
-  async put (TableName, Item) {
-    return this._client.put({ TableName, Item }).promise()
-  }
-
-  async get (TableName, Key) {
-    const doc = await this._client.get({ TableName, Key }).promise()
-    return doc.Item
-  }
-
-  async remove (TableName, Key) {
-    return this._client.delete({ TableName, Key }).promise()
-  }
+  _client = new AWS.DynamoDB.DocumentClient(options)
 }
 
-module.exports = DynamoDB
+exports.put = async (TableName, Item) => {
+  return _client.put({ TableName, Item }).promise()
+}
+
+exports.get = async (TableName, Key) => {
+  const doc = await _client.get({ TableName, Key }).promise()
+  return doc.Item
+}
+
+exports.remove = async (TableName, Key) => {
+  return _client.delete({ TableName, Key }).promise()
+}

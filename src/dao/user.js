@@ -4,6 +4,7 @@
 
 'use strict'
 
+const dynamo = require('../service/dynamodb')
 const { isPhone, isCode, generateCode } = require('../lib/verify')
 
 /**
@@ -18,63 +19,55 @@ const { isPhone, isCode, generateCode } = require('../lib/verify')
  */
 const TABLE = process.env.DYNAMODB_TABLE_USER
 
-class User {
-  constructor (dynamo) {
-    this._dynamo = dynamo
+exports.create = async ({ phone, keyId }) => {
+  if (!isPhone(phone) || !keyId) {
+    throw new Error('Invalid args')
   }
-
-  async create ({ phone, keyId }) {
-    if (!isPhone(phone) || !keyId) {
-      throw new Error('Invalid args')
-    }
-    const code = await generateCode()
-    await this._dynamo.put(TABLE, {
-      id: phone,
-      type: 'phone',
-      keyId,
-      code,
-      verified: false
-    })
-    return code
-  }
-
-  async verify ({ phone, code }) {
-    if (!isPhone(phone) || !isCode(code)) {
-      throw new Error('Invalid args')
-    }
-    const user = await this._dynamo.get(TABLE, { id: phone })
-    if (!user || user.code !== code) {
-      return null
-    }
-    user.verified = true
-    user.code = await generateCode()
-    await this._dynamo.put(TABLE, user)
-    return user
-  }
-
-  async getVerified ({ phone }) {
-    if (!isPhone(phone)) {
-      throw new Error('Invalid args')
-    }
-    const user = await this._dynamo.get(TABLE, { id: phone })
-    if (!user || !user.verified) {
-      return null
-    }
-    return user
-  }
-
-  async setNewCode ({ phone }) {
-    if (!isPhone(phone)) {
-      throw new Error('Invalid args')
-    }
-    const user = await this._dynamo.get(TABLE, { id: phone })
-    if (!user) {
-      throw new Error('User not found')
-    }
-    user.code = await generateCode()
-    await this._dynamo.put(TABLE, user)
-    return user.code
-  }
+  const code = await generateCode()
+  await dynamo.put(TABLE, {
+    id: phone,
+    type: 'phone',
+    keyId,
+    code,
+    verified: false
+  })
+  return code
 }
 
-module.exports = User
+exports.verify = async ({ phone, code }) => {
+  if (!isPhone(phone) || !isCode(code)) {
+    throw new Error('Invalid args')
+  }
+  const user = await dynamo.get(TABLE, { id: phone })
+  if (!user || user.code !== code) {
+    return null
+  }
+  user.verified = true
+  user.code = await generateCode()
+  await dynamo.put(TABLE, user)
+  return user
+}
+
+exports.getVerified = async ({ phone }) => {
+  if (!isPhone(phone)) {
+    throw new Error('Invalid args')
+  }
+  const user = await dynamo.get(TABLE, { id: phone })
+  if (!user || !user.verified) {
+    return null
+  }
+  return user
+}
+
+exports.setNewCode = async ({ phone }) => {
+  if (!isPhone(phone)) {
+    throw new Error('Invalid args')
+  }
+  const user = await dynamo.get(TABLE, { id: phone })
+  if (!user) {
+    throw new Error('User not found')
+  }
+  user.code = await generateCode()
+  await dynamo.put(TABLE, user)
+  return user.code
+}

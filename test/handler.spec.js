@@ -4,7 +4,7 @@
 'use strict'
 
 const mochaPlugin = require('serverless-mocha-plugin')
-const DynamoDB = require('../src/service/dynamodb')
+const dynamo = require('../src/service/dynamodb')
 const expect = mochaPlugin.chai.expect
 const createKey = mochaPlugin.getWrapper('createKey', '/handler.js', 'createKey')
 const verifyKey = mochaPlugin.getWrapper('verifyKey', '/handler.js', 'verifyKey')
@@ -14,12 +14,10 @@ describe('handlers', () => {
   const TABLE_USER = process.env.DYNAMODB_TABLE_USER
   const phone = '+4917512345678'
   let keyId
-  let dynamo
   let code1
   let code2
 
   before(async () => {
-    dynamo = new DynamoDB()
     await dynamo.remove(TABLE_USER, { id: phone })
   })
 

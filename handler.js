@@ -1,19 +1,67 @@
 'use strict'
 
-const DynamoDB = require('./src/service/dynamodb')
-const Twilio = require('./src/service/twilio')
-const UserDao = require('./src/dao/user')
-const KeyDao = require('./src/dao/key')
-const Proxy = require('./src/lib/proxy')
+const keyDao = require('./src/dao/key')
+const userDao = require('./src/dao/user')
+const dynamo = require('./src/service/dynamodb')
+const twilio = require('./src/service/twilio')
+const { isPhone, isCode } = require('./src/lib/verify')
+const { path, body, query, response, error } = require('./src/lib/http')
 
-const twilio = new Twilio()
-const dynamo = new DynamoDB()
-const keyDao = new KeyDao(dynamo)
-const userDao = new UserDao(dynamo)
-const proxy = new Proxy(twilio, keyDao, userDao)
+dynamo.init()
+twilio.init()
 
-module.exports.createKey = event => proxy.createKey(event)
+exports.createKey = async (event) => {
+  try {
+    const { phone } = body(event)
+    if (!isPhone(phone)) {
+      return error(400, 'Invalid request')
+    }
+    const user = await userDao.getVerified({ phone })
+    if (user) {
+      return error(409, 'Key already exists for user id')
+    }
+    const id = await keyDao.create()
+    const code = await userDao.create({ phone, keyId: id })
+    await twilio.send({ phone, code })
+    return response(201, { id })
+  } catch (err) {
+    return error(500, 'Error creating key', err)
+  }
+}
 
-module.exports.getKey = event => proxy.getKey(event)
+exports.getKey = async (event) => {
+  try {
+    const { keyId } = path(event)
+    const { phone } = query(event)
+    if (!keyId || !isPhone(phone)) {
+      return error(400, 'Invalid request')
+    }
+    const user = await userDao.getVerified({ phone })
+    if (!user || user.keyId !== keyId) {
+      return error(404, 'Invalid params')
+    }
+    const code = await userDao.setNewCode({ phone })
+    await twilio.send({ phone, code })
+    return response(200)
+  } catch (err) {
+    return error(500, 'Error reading key', err)
+  }
+}
 
-module.exports.verifyKey = event => proxy.verifyKey(event)
+exports.verifyKey = async (event) => {
+  try {
+    const { keyId } = path(event)
+    const { phone, code } = body(event)
+    if (!keyId || !isPhone(phone) || !isCode(code)) {
+      return error(400, 'Invalid request')
+    }
+    const user = await userDao.verify({ phone, code })
+    if (!user || user.keyId !== keyId) {
+      return error(404, 'Invalid params')
+    }
+    const key = await keyDao.get({ id: keyId })
+    return response(200, key)
+  } catch (err) {
+    return error(500, 'Error creating key', err)
+  }
+}

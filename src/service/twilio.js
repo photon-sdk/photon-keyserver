@@ -4,34 +4,33 @@
 
 'use strict'
 
+const twilio = require('twilio')
 const { isPhone, isCode } = require('../lib/verify')
 
-class Twilio {
-  constructor () {
-    if (process.env.IS_OFFLINE) {
-      this._client = { messages: { create: () => {} } }
-    } else {
-      const accountSid = process.env.TWILIO_ACCOUNT_SID
-      const authToken = process.env.TWILIO_AUTH_TOKEN
-      this._client = require('twilio')(accountSid, authToken)
-    }
-  }
+let _client
 
-  async send ({ phone, code }) {
-    if (!isPhone(phone) || !isCode(code)) {
-      throw new Error('Invalid args')
-    }
-    const sms = {
-      to: phone,
-      body: `Your verification code is: ${code}`,
-      from: process.env.TWILIO_FROM_NUMBER
-    }
-    try {
-      await this._client.messages.create(sms)
-    } catch (err) {
-      console.error('Twilio SMS send failed!', err)
-    }
+exports.init = () => {
+  if (process.env.IS_OFFLINE) {
+    _client = { messages: { create: () => {} } }
+  } else {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID
+    const authToken = process.env.TWILIO_AUTH_TOKEN
+    _client = twilio(accountSid, authToken)
   }
 }
 
-module.exports = Twilio
+exports.send = async ({ phone, code }) => {
+  if (!isPhone(phone) || !isCode(code)) {
+    throw new Error('Invalid args')
+  }
+  const sms = {
+    to: phone,
+    body: `Your verification code is: ${code}`,
+    from: process.env.TWILIO_FROM_NUMBER
+  }
+  try {
+    await _client.messages.create(sms)
+  } catch (err) {
+    console.error('Twilio SMS send failed!', err)
+  }
+}

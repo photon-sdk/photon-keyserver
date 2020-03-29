@@ -5,6 +5,7 @@
 'use strict'
 
 const { v4: uuid } = require('uuid')
+const dynamo = require('../service/dynamodb')
 const { generateKey } = require('../lib/verify')
 
 /**
@@ -16,27 +17,16 @@ const { generateKey } = require('../lib/verify')
  */
 const TABLE = process.env.DYNAMODB_TABLE_KEY
 
-class Key {
-  constructor (dynamo) {
-    this._dynamo = dynamo
-  }
-
-  async create () {
-    const id = uuid()
-    const encryptionKey = await generateKey()
-    await this._dynamo.put(TABLE, {
-      id,
-      encryptionKey
-    })
-    return id
-  }
-
-  async get ({ id }) {
-    if (!id) {
-      throw new Error('Invalid args')
-    }
-    return this._dynamo.get(TABLE, { id })
-  }
+exports.create = async () => {
+  const id = uuid()
+  const encryptionKey = await generateKey()
+  await dynamo.put(TABLE, { id, encryptionKey })
+  return id
 }
 
-module.exports = Key
+exports.get = async ({ id }) => {
+  if (!id) {
+    throw new Error('Invalid args')
+  }
+  return dynamo.get(TABLE, { id })
+}
