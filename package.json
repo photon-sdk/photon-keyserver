@@ -10,6 +10,7 @@
     "start": "sls offline start",
     "test": "npm run -s test:lint && npm run -s test:integration",
     "test:lint": "standard *.js 'src/**/*.js' 'test/**/*.js'",
+    "test:unit": "mocha test/unit/",
     "test:integration": "IS_OFFLINE=true sls invoke test"
   },
   "dependencies": {
