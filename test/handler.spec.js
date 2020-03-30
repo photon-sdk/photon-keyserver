@@ -9,7 +9,7 @@ const verifyKey = mochaPlugin.getWrapper('verifyKey', '/handler.js', 'verifyKey'
 const getKey = mochaPlugin.getWrapper('getKey', '/handler.js', 'getKey')
 const dynamo = require('../src/service/dynamodb')
 
-describe('handlers', () => {
+describe('Api handler integration test', () => {
   const TABLE_USER = process.env.DYNAMODB_TABLE_USER
   const phone = '+4917512345678'
   let keyId
