@@ -9,8 +9,10 @@ const { isPhone, isCode } = require('../lib/verify')
 
 let _client
 
-exports.init = () => {
-  if (process.env.IS_OFFLINE) {
+exports.init = (clientStub) => {
+  if (clientStub) {
+    _client = clientStub
+  } else if (process.env.IS_OFFLINE) {
     _client = { messages: { create: () => {} } }
   } else {
     const accountSid = process.env.TWILIO_ACCOUNT_SID
