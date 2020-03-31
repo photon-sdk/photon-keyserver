@@ -12,8 +12,6 @@ let _client
 exports.init = (clientStub) => {
   if (clientStub) {
     _client = clientStub
-  } else if (process.env.IS_OFFLINE) {
-    _client = { messages: { create: () => {} } }
   } else {
     const accountSid = process.env.TWILIO_ACCOUNT_SID
     const authToken = process.env.TWILIO_AUTH_TOKEN
