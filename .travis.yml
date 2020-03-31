@@ -1,0 +1,16 @@
+sudo: false
+language: node_js
+node_js:
+  - '12'
+
+cache:
+  directories:
+  - $HOME/.npm
+
+before_script:
+  - npm i -g serverless
+  - serverless dynamodb install
+  - npm start
+
+script:
+  - npm test
