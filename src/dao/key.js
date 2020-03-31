@@ -6,7 +6,7 @@
 
 const { v4: uuid } = require('uuid')
 const dynamo = require('../service/dynamodb')
-const { generateKey } = require('../lib/verify')
+const { isId, generateKey } = require('../lib/verify')
 
 /**
  * Database documents have the format:
@@ -25,7 +25,7 @@ exports.create = async () => {
 }
 
 exports.get = async ({ id }) => {
-  if (!id) {
+  if (!isId(id)) {
     throw new Error('Invalid args')
   }
   return dynamo.get(TABLE, { id })

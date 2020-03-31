@@ -4,7 +4,7 @@ const keyDao = require('./src/dao/key')
 const userDao = require('./src/dao/user')
 const dynamo = require('./src/service/dynamodb')
 const twilio = require('./src/service/twilio')
-const { isPhone, isCode } = require('./src/lib/verify')
+const { isPhone, isCode, isId } = require('./src/lib/verify')
 const { path, body, query, response, error } = require('./src/lib/http')
 
 dynamo.init()
@@ -33,7 +33,7 @@ exports.getKey = async (event) => {
   try {
     const { keyId } = path(event)
     const { phone } = query(event)
-    if (!keyId || !isPhone(phone)) {
+    if (!isId(keyId) || !isPhone(phone)) {
       return error(400, 'Invalid request')
     }
     const user = await userDao.getVerified({ phone })
@@ -52,7 +52,7 @@ exports.verifyKey = async (event) => {
   try {
     const { keyId } = path(event)
     const { phone, code } = body(event)
-    if (!keyId || !isPhone(phone) || !isCode(code)) {
+    if (!isId(keyId) || !isPhone(phone) || !isCode(code)) {
       return error(400, 'Invalid request')
     }
     const user = await userDao.verify({ phone, code })

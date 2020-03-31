@@ -33,9 +33,11 @@ describe('Key DAO unit test', () => {
   })
 
   describe('get', () => {
+    const id = '8abe1a93-6a9c-490c-bbd5-d7f11a4a9c8f'
+
     it('read item by id', async () => {
       dynamo.get.resolves('some-key')
-      const key = await keyDao.get({ id: 'some-id' })
+      const key = await keyDao.get({ id })
       expect(key, 'to equal', 'some-key')
     })
 
@@ -45,7 +47,7 @@ describe('Key DAO unit test', () => {
 
     it('fail on dynamo error', async () => {
       dynamo.get.rejects(new Error('boom'))
-      await expect(keyDao.get({ id: 'some-id' }), 'to be rejected with', 'boom')
+      await expect(keyDao.get({ id }), 'to be rejected with', 'boom')
     })
   })
 })
