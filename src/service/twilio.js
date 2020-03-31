@@ -30,9 +30,5 @@ exports.send = async ({ phone, code }) => {
     body: `Your verification code is: ${code}`,
     from: process.env.TWILIO_FROM_NUMBER
   }
-  try {
-    await _client.messages.create(sms)
-  } catch (err) {
-    console.error('Twilio SMS send failed!', err)
-  }
+  return _client.messages.create(sms)
 }

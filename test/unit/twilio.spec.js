@@ -25,5 +25,10 @@ describe('Twilio Service unit test', () => {
     it('fail on invalid args', async () => {
       await expect(twilio.send({}), 'to be rejected with', /Invalid/)
     })
+
+    it('fail on twilio error', async () => {
+      clientStub.messages.create.rejects(new Error('boom'))
+      await expect(twilio.send({ phone, code }), 'to be rejected with', /boom/)
+    })
   })
 })
