@@ -3,8 +3,5 @@ language: node_js
 node_js:
   - '12'
 
-before_script:
-  - npm i -g serverless
-
 script:
   - npm run -s test:lint && npm run -s test:unit
