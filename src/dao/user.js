@@ -5,7 +5,7 @@
 'use strict'
 
 const dynamo = require('../service/dynamodb')
-const { isPhone, isCode, generateCode } = require('../lib/verify')
+const { isPhone, isCode, isId, generateCode } = require('../lib/verify')
 
 /**
  * Database documents have the format:
@@ -20,7 +20,7 @@ const { isPhone, isCode, generateCode } = require('../lib/verify')
 const TABLE = process.env.DYNAMODB_TABLE_USER
 
 exports.create = async ({ phone, keyId }) => {
-  if (!isPhone(phone) || !keyId) {
+  if (!isPhone(phone) || !isId(keyId)) {
     throw new Error('Invalid args')
   }
   const code = await generateCode()
