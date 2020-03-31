@@ -9,8 +9,6 @@ cache:
 
 before_script:
   - npm i -g serverless
-  - serverless dynamodb install
-  - npm start
 
 script:
-  - npm test
+  - npm run -s test:lint && npm run -s test:unit
