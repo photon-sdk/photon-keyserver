@@ -9,7 +9,12 @@ describe('DynamoDB Service integration test', () => {
   const TABLE = process.env.DYNAMODB_TABLE_KEY
 
   before(async () => {
-    dynamo.init()
+    dynamo.init({
+      region: 'localhost',
+      endpoint: 'http://localhost:8000',
+      accessKeyId: 'akid',
+      secretAccessKey: 'secret'
+    })
   })
 
   describe('put', () => {

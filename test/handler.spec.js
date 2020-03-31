@@ -2,14 +2,17 @@
 
 'use strict'
 
+const sinon = require('sinon')
 const expect = require('unexpected')
 const mochaPlugin = require('serverless-mocha-plugin')
 const createKey = mochaPlugin.getWrapper('createKey', '/handler.js', 'createKey')
 const verifyKey = mochaPlugin.getWrapper('verifyKey', '/handler.js', 'verifyKey')
 const getKey = mochaPlugin.getWrapper('getKey', '/handler.js', 'getKey')
 const dynamo = require('../src/service/dynamodb')
+const twilio = require('../src/service/twilio')
 
 describe('Api handler integration test', () => {
+  let twilioStub
   const TABLE_USER = process.env.DYNAMODB_TABLE_USER
   const phone = '+4917512345678'
   let keyId
@@ -17,6 +20,14 @@ describe('Api handler integration test', () => {
   let code2
 
   before(async () => {
+    twilioStub = { messages: { create: sinon.stub() } }
+    twilio.init(twilioStub)
+    dynamo.init({
+      region: 'localhost',
+      endpoint: 'http://localhost:8000',
+      accessKeyId: 'akid',
+      secretAccessKey: 'secret'
+    })
     await dynamo.remove(TABLE_USER, { id: phone })
   })
 
@@ -56,6 +67,7 @@ describe('Api handler integration test', () => {
 
   describe('verifyKey', () => {
     before(async () => {
+      expect(twilioStub.messages.create.callCount, 'to be', 1)
       code1 = (await dynamo.get(TABLE_USER, { id: phone })).code
       expect(code1, 'to be ok')
     })
@@ -89,6 +101,7 @@ describe('Api handler integration test', () => {
 
   describe('verifyKey', () => {
     before(async () => {
+      expect(twilioStub.messages.create.callCount, 'to be', 2)
       code2 = (await dynamo.get(TABLE_USER, { id: phone })).code
       expect(code2, 'to be ok')
     })

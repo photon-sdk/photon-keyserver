@@ -8,16 +8,7 @@ const AWS = require('aws-sdk')
 
 let _client
 
-exports.init = () => {
-  let options = {}
-  if (process.env.IS_OFFLINE) {
-    options = {
-      region: 'localhost',
-      endpoint: 'http://localhost:8000',
-      accessKeyId: 'akid',
-      secretAccessKey: 'secret'
-    }
-  }
+exports.init = (options = {}) => {
   _client = new AWS.DynamoDB.DocumentClient(options)
 }
 
