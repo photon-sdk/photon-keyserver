@@ -8,8 +8,8 @@ const mochaPlugin = require('serverless-mocha-plugin')
 const createKey = mochaPlugin.getWrapper('createKey', '/handler.js', 'createKey')
 const verifyKey = mochaPlugin.getWrapper('verifyKey', '/handler.js', 'verifyKey')
 const getKey = mochaPlugin.getWrapper('getKey', '/handler.js', 'getKey')
-const dynamo = require('../src/service/dynamodb')
-const twilio = require('../src/service/twilio')
+const dynamo = require('../../src/service/dynamodb')
+const twilio = require('../../src/service/twilio')
 
 describe('Api handler integration test', () => {
   let twilioStub

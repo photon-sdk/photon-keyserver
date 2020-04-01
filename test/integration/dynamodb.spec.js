@@ -3,7 +3,7 @@
 'use strict'
 
 const expect = require('unexpected')
-const dynamo = require('../src/service/dynamodb')
+const dynamo = require('../../src/service/dynamodb')
 
 describe('DynamoDB Service integration test', () => {
   const TABLE = process.env.DYNAMODB_TABLE_KEY
