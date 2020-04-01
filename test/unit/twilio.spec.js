@@ -17,11 +17,6 @@ describe('Twilio Service unit test', () => {
   })
 
   describe('send', () => {
-    it('send sms message', async () => {
-      await twilio.send({ phone, code })
-      expect(clientStub.messages.create.callCount, 'to be', 1)
-    })
-
     it('fail on invalid args', async () => {
       await expect(twilio.send({}), 'to be rejected with', /Invalid/)
     })
@@ -29,6 +24,11 @@ describe('Twilio Service unit test', () => {
     it('fail on twilio error', async () => {
       clientStub.messages.create.rejects(new Error('boom'))
       await expect(twilio.send({ phone, code }), 'to be rejected with', /boom/)
+    })
+
+    it('send sms message', async () => {
+      await twilio.send({ phone, code })
+      expect(clientStub.messages.create.callCount, 'to be', 1)
     })
   })
 })
