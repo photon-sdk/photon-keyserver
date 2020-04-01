@@ -4,11 +4,11 @@
 
 'use strict'
 
-module.exports.body = event => {
+exports.body = event => {
   return JSON.parse(event.body || '{}')
 }
 
-module.exports.path = event => {
+exports.path = event => {
   const path = {}
   Object.keys(event.pathParameters || {}).forEach(key => {
     path[key] = decodeURIComponent(event.pathParameters[key])
@@ -16,7 +16,7 @@ module.exports.path = event => {
   return path
 }
 
-module.exports.query = event => {
+exports.query = event => {
   const query = {}
   Object.keys(event.queryStringParameters || {}).forEach(key => {
     query[key] = decodeURIComponent(event.queryStringParameters[key])
@@ -24,12 +24,12 @@ module.exports.query = event => {
   return query
 }
 
-module.exports.response = (status, body = {}) => ({
+exports.response = (status, body = {}) => ({
   statusCode: status,
   body: JSON.stringify(body)
 })
 
-module.exports.error = (status, message, err) => {
+exports.error = (status, message, err) => {
   if (err) {
     console.error(err)
   }
