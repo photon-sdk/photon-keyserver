@@ -11,7 +11,7 @@ const getKey = mochaPlugin.getWrapper('getKey', '/handler.js', 'getKey')
 const dynamo = require('../../src/service/dynamodb')
 const twilio = require('../../src/service/twilio')
 
-describe('Api handler integration test', () => {
+describe('Api Handler integration test', () => {
   let twilioStub
   const TABLE_USER = process.env.DYNAMODB_TABLE_USER
   const phone = '+4917512345678'

@@ -2,8 +2,8 @@
 
 const keyDao = require('./src/dao/key')
 const userDao = require('./src/dao/user')
-const dynamo = require('./src/service/dynamodb')
 const twilio = require('./src/service/twilio')
+const dynamo = require('./src/service/dynamodb')
 const { isPhone, isCode, isId } = require('./src/lib/verify')
 const { path, body, query, response, error } = require('./src/lib/http')
 
