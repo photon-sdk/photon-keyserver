@@ -8,10 +8,10 @@
   },
   "scripts": {
     "start": "sls offline start",
-    "test": "npm run -s test:lint && npm run -s test:integration",
+    "test": "npm run -s test:lint && npm run -s test:unit && npm run -s test:integration",
     "test:lint": "standard *.js 'src/**/*.js' 'test/**/*.js'",
     "test:unit": "mocha test/unit/",
-    "test:integration": "sls invoke test"
+    "test:integration": "sls offline start & P1=$! && wait-on tcp:3000 && sls invoke test && kill $P1"
   },
   "dependencies": {
     "aws-sdk": "^2.635.0",
@@ -24,6 +24,7 @@
     "serverless-offline": "^5.12.1",
     "sinon": "^9.0.1",
     "standard": "^14.3.3",
-    "unexpected": "^11.14.0"
+    "unexpected": "^11.14.0",
+    "wait-on": "^4.0.1"
   }
 }
