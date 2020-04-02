@@ -20,6 +20,7 @@
     "uuid": "^7.0.2"
   },
   "devDependencies": {
+    "serverless": "^1.67.0",
     "serverless-dynamodb-local": "^0.2.39",
     "serverless-mocha-plugin": "^1.11.0",
     "serverless-offline": "^5.12.1",
