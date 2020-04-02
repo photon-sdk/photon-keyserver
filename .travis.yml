@@ -5,3 +5,11 @@ node_js:
 
 script:
   - npm test
+
+deploy:
+  provider: script
+  script: sls deploy
+  skip_cleanup: true
+  on:
+    repo: tanx/photon-keyserver
+    branch: master
