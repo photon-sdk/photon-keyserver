@@ -12,6 +12,5 @@ serverless dynamodb install
 ## Run tests locally
 
 ```bash
-npm start  # in terminal tab 1
-npm test   # in terminal tab 2
+npm test
 ```
