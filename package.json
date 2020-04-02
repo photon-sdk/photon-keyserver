@@ -7,6 +7,7 @@
     "url": "git+https://github.com/tanx/photon-keyserver.git"
   },
   "scripts": {
+    "postinstall": "sls dynamodb install",
     "start": "sls offline start",
     "test": "npm run -s test:lint && npm run -s test:unit && npm run -s test:integration",
     "test:lint": "standard *.js 'src/**/*.js' 'test/**/*.js'",
