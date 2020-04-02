@@ -38,12 +38,17 @@ describe('Api Handler integration test', () => {
     })
 
     it('create key document', async () => {
+      twilioStub.messages.create.callsFake(({ to, body }) => {
+        expect(to, 'to equal', phone)
+        code1 = body.split(': ')[1]
+      })
       const response = await createKey.run({
         body: JSON.stringify({ phone })
       })
       keyId = JSON.parse(response.body).id
       expect(keyId, 'to be ok')
       expect(response.statusCode, 'to be', 201)
+      expect(code1, 'to be ok')
     })
   })
 
@@ -66,12 +71,6 @@ describe('Api Handler integration test', () => {
   })
 
   describe('verifyKey', () => {
-    before(async () => {
-      expect(twilioStub.messages.create.callCount, 'to be', 1)
-      code1 = (await dynamo.get(TABLE_USER, { id: phone })).code
-      expect(code1, 'to be ok')
-    })
-
     it('handle empty body', async () => {
       const response = await verifyKey.run({})
       expect(response.statusCode, 'to be', 400)
@@ -91,21 +90,19 @@ describe('Api Handler integration test', () => {
 
   describe('getKey', () => {
     it('read key document', async () => {
+      twilioStub.messages.create.callsFake(({ to, body }) => {
+        code2 = body.split(': ')[1]
+      })
       const response = await getKey.run({
         pathParameters: { keyId },
         queryStringParameters: { phone: encodeURIComponent(phone) }
       })
       expect(response.statusCode, 'to be', 200)
+      expect(code2, 'to be ok')
     })
   })
 
   describe('verifyKey', () => {
-    before(async () => {
-      expect(twilioStub.messages.create.callCount, 'to be', 2)
-      code2 = (await dynamo.get(TABLE_USER, { id: phone })).code
-      expect(code2, 'to be ok')
-    })
-
     it('verify a different code', async () => {
       expect(code1, 'not to be', code2)
       const response = await verifyKey.run({
