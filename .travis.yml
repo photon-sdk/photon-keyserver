@@ -4,4 +4,4 @@ node_js:
   - '12'
 
 script:
-  - npm run -s test:lint && npm run -s test:unit
+  - npm test
