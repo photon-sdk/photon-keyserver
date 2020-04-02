@@ -2,8 +2,6 @@ service: photon-keyserver
 app: photon-keyserver
 org: tankred
 
-frameworkVersion: ">=1.65.0 <2.0.0"
-
 plugins:
   - serverless-offline
   - serverless-mocha-plugin
