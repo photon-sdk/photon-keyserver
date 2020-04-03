@@ -9,6 +9,7 @@ const keyDao = require('../../src/dao/key')
 const { isId } = require('../../src/lib/verify')
 
 describe('Key DAO unit test', () => {
+  const id = '8abe1a93-6a9c-490c-bbd5-d7f11a4a9c8f'
   let sandbox
 
   beforeEach(() => {
@@ -34,8 +35,6 @@ describe('Key DAO unit test', () => {
   })
 
   describe('get', () => {
-    const id = '8abe1a93-6a9c-490c-bbd5-d7f11a4a9c8f'
-
     it('fail on invalid args', async () => {
       await expect(keyDao.get({}), 'to be rejected with', /Invalid/)
     })
@@ -49,6 +48,23 @@ describe('Key DAO unit test', () => {
       dynamo.get.resolves('some-key')
       const key = await keyDao.get({ id })
       expect(key, 'to equal', 'some-key')
+    })
+  })
+
+  describe('remove', () => {
+    it('fail on invalid args', async () => {
+      await expect(keyDao.remove({}), 'to be rejected with', /Invalid/)
+    })
+
+    it('fail on dynamo error', async () => {
+      dynamo.remove.rejects(new Error('boom'))
+      await expect(keyDao.remove({ id }), 'to be rejected with', 'boom')
+    })
+
+    it('delete item by id', async () => {
+      dynamo.remove.resolves('success')
+      const key = await keyDao.remove({ id })
+      expect(key, 'to equal', 'success')
     })
   })
 })

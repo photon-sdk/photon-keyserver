@@ -30,3 +30,10 @@ exports.get = async ({ id }) => {
   }
   return dynamo.get(TABLE, { id })
 }
+
+exports.remove = async ({ id }) => {
+  if (!isId(id)) {
+    throw new Error('Invalid args')
+  }
+  return dynamo.remove(TABLE, { id })
+}
