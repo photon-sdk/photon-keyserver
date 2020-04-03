@@ -6,7 +6,7 @@ const axios = require('axios')
 const expect = require('unexpected')
 const dynamo = require('../../src/service/dynamodb')
 
-describe('Api Handler integration test', () => {
+describe('REST api integration test', () => {
   let client
   const TABLE_KEY = 'photon-keyserver-dev-key'
   const TABLE_USER = 'photon-keyserver-dev-user'
@@ -28,7 +28,7 @@ describe('Api Handler integration test', () => {
     await dynamo.remove(TABLE_USER, { id: phone })
   })
 
-  describe('createKey', () => {
+  describe('POST: upload new key', () => {
     it('handle empty body', async () => {
       const response = await client.post('/v1/key', {})
       expect(response.status, 'to be', 400)
@@ -44,7 +44,7 @@ describe('Api Handler integration test', () => {
     })
   })
 
-  describe('getKey', () => {
+  describe('GET: request unverified key', () => {
     it('handle empty query params', async () => {
       const response = await client.get(`/v1/key/${keyId}`)
       expect(response.status, 'to be', 400)
@@ -58,7 +58,7 @@ describe('Api Handler integration test', () => {
     })
   })
 
-  describe('verifyKey', () => {
+  describe('PUT: verify upload and download key', () => {
     before(async () => {
       code1 = (await dynamo.get(TABLE_USER, { id: phone })).code
       expect(code1, 'to be ok')
@@ -81,7 +81,7 @@ describe('Api Handler integration test', () => {
     })
   })
 
-  describe('getKey', () => {
+  describe('GET: request verified key', () => {
     it('read key document', async () => {
       const response = await client.get(`/v1/key/${keyId}`, {
         params: { phone }
@@ -90,7 +90,7 @@ describe('Api Handler integration test', () => {
     })
   })
 
-  describe('verifyKey', () => {
+  describe('PUT: verify read request and download key', () => {
     before(async () => {
       code2 = (await dynamo.get(TABLE_USER, { id: phone })).code
       expect(code2, 'to be ok')
@@ -103,6 +103,7 @@ describe('Api Handler integration test', () => {
         code: code2
       })
       expect(response.status, 'to be', 200)
+      expect(response.data.encryptionKey, 'to be ok')
     })
   })
 })
