@@ -3,9 +3,8 @@ app: photon-keyserver
 org: tankred
 
 plugins:
-  - serverless-offline
-  - serverless-mocha-plugin
   - serverless-dynamodb-local
+  - serverless-offline
 
 provider:
   name: aws

@@ -6,15 +6,10 @@ const expect = require('unexpected')
 const dynamo = require('../../src/service/dynamodb')
 
 describe('DynamoDB Service integration test', () => {
-  const TABLE = process.env.DYNAMODB_TABLE_KEY
+  const TABLE = 'photon-keyserver-dev-key'
 
   before(async () => {
-    dynamo.init({
-      region: 'localhost',
-      endpoint: 'http://localhost:8000',
-      accessKeyId: 'akid',
-      secretAccessKey: 'secret'
-    })
+    dynamo.init()
   })
 
   describe('put', () => {
