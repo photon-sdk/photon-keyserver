@@ -8,6 +8,7 @@ const dynamo = require('../../src/service/dynamodb')
 
 describe('Api Handler integration test', () => {
   let client
+  const TABLE_KEY = 'photon-keyserver-dev-key'
   const TABLE_USER = 'photon-keyserver-dev-user'
   const phone = '+4917512345678'
   let keyId
@@ -20,6 +21,10 @@ describe('Api Handler integration test', () => {
       baseURL: 'http://localhost:3000',
       validateStatus: null
     })
+  })
+
+  after(async () => {
+    await dynamo.remove(TABLE_KEY, { id: keyId })
     await dynamo.remove(TABLE_USER, { id: phone })
   })
 
