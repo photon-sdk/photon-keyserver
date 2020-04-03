@@ -18,6 +18,32 @@ describe('Verify Lib unit test', () => {
     sandbox.restore()
   })
 
+  describe('isOp', () => {
+    it('returns true for a string op', () => {
+      expect(verify.isOp('read'), 'to be', true)
+    })
+
+    it('returns true for a enum ops', () => {
+      expect(verify.isOp(verify.ops.READ), 'to be', true)
+    })
+
+    it('returns false for an op', () => {
+      expect(verify.isOp('invalid'), 'to be', false)
+    })
+
+    it('returns false for null', () => {
+      expect(verify.isOp(null), 'to be', false)
+    })
+
+    it('returns false for undefined', () => {
+      expect(verify.isOp(undefined), 'to be', false)
+    })
+
+    it('returns false for empty string', () => {
+      expect(verify.isOp(''), 'to be', false)
+    })
+  })
+
   describe('isPhone', () => {
     it('returns true for a valid phone number', () => {
       expect(verify.isPhone('+4917512345678'), 'to be', true)

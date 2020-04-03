@@ -7,6 +7,16 @@
 const crypto = require('crypto')
 const { promisify } = require('util')
 
+exports.ops = {
+  READ: 'read',
+  VERIFY: 'verify',
+  REMOVE: 'remove'
+}
+
+exports.isOp = op => {
+  return Object.values(this.ops).includes(op)
+}
+
 exports.isPhone = phone => {
   return /^\+[1-9]\d{1,14}$/.test(phone)
 }
