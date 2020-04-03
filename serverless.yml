@@ -49,6 +49,12 @@ functions:
      - http:
          path: /v1/key/{keyId}
          method: put
+  removeKey:
+    handler: handler.removeKey
+    events:
+     - http:
+         path: /v1/key/{keyId}
+         method: delete
 
 resources:
   Resources:

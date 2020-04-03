@@ -15,6 +15,7 @@ describe('Api Handler unit test', () => {
   const phone = '+4917512345678'
   const keyId = '8abe1a93-6a9c-490c-bbd5-d7f11a4a9c8f'
   const code = '123456'
+  const op = 'read'
 
   beforeEach(() => {
     sandbox = sinon.createSandbox()
@@ -65,16 +66,7 @@ describe('Api Handler unit test', () => {
     })
 
     it('handle no verified user', async () => {
-      userDao.getVerified.resolves(null)
-      const response = await handler.getKey({
-        pathParameters: { keyId },
-        queryStringParameters: { phone: encodeURIComponent(phone) }
-      })
-      expect(response.statusCode, 'to be', 404)
-    })
-
-    it('handle no matching user', async () => {
-      userDao.getVerified.resolves({ keyId: 'some-other-id' })
+      userDao.setNewCode.resolves(null)
       const response = await handler.getKey({
         pathParameters: { keyId },
         queryStringParameters: { phone: encodeURIComponent(phone) }
@@ -83,7 +75,7 @@ describe('Api Handler unit test', () => {
     })
 
     it('successfully request a key', async () => {
-      userDao.getVerified.resolves({ keyId })
+      userDao.setNewCode.resolves(code)
       const response = await handler.getKey({
         pathParameters: { keyId },
         queryStringParameters: { phone: encodeURIComponent(phone) }
@@ -93,7 +85,7 @@ describe('Api Handler unit test', () => {
     })
 
     it('respond 500 for internal error', async () => {
-      userDao.getVerified.rejects(new Error('boom'))
+      userDao.setNewCode.rejects(new Error('boom'))
       const response = await handler.getKey({
         pathParameters: { keyId },
         queryStringParameters: { phone: encodeURIComponent(phone) }
@@ -113,26 +105,40 @@ describe('Api Handler unit test', () => {
       userDao.verify.resolves(null)
       const response = await handler.verifyKey({
         pathParameters: { keyId },
-        body: JSON.stringify({ phone, code })
+        body: JSON.stringify({ phone, code, op })
       })
       expect(response.statusCode, 'to be', 404)
     })
 
-    it('handle no matching user', async () => {
-      userDao.verify.resolves({ keyId: 'some-other-id' })
+    it('respond 500 if user remove fails', async () => {
+      userDao.verify.resolves({ keyId })
+      userDao.remove.rejects(new Error('boom'))
       const response = await handler.verifyKey({
         pathParameters: { keyId },
-        body: JSON.stringify({ phone, code })
+        body: JSON.stringify({ phone, code, op: 'remove' })
       })
-      expect(response.statusCode, 'to be', 404)
+      expect(response.statusCode, 'to be', 500)
+      expect(userDao.remove.callCount, 'to be', 1)
+      expect(keyDao.remove.callCount, 'to be', 0)
     })
 
-    it('successfully verify a key', async () => {
+    it('successfully verify key remove', async () => {
+      userDao.verify.resolves({ keyId })
+      const response = await handler.verifyKey({
+        pathParameters: { keyId },
+        body: JSON.stringify({ phone, code, op: 'remove' })
+      })
+      expect(response.statusCode, 'to be', 200)
+      expect(userDao.remove.callCount, 'to be', 1)
+      expect(keyDao.remove.callCount, 'to be', 1)
+    })
+
+    it('successfully verify key read', async () => {
       userDao.verify.resolves({ keyId })
       keyDao.get.resolves({ id: keyId })
       const response = await handler.verifyKey({
         pathParameters: { keyId },
-        body: JSON.stringify({ phone, code })
+        body: JSON.stringify({ phone, code, op })
       })
       expect(response.statusCode, 'to be', 200)
       expect(JSON.parse(response.body).id, 'to be', keyId)
@@ -142,7 +148,43 @@ describe('Api Handler unit test', () => {
       userDao.verify.rejects(new Error('boom'))
       const response = await handler.verifyKey({
         pathParameters: { keyId },
-        body: JSON.stringify({ phone, code })
+        body: JSON.stringify({ phone, code, op })
+      })
+      expect(response.statusCode, 'to be', 500)
+      expect(console.error.callCount, 'to be', 1)
+    })
+  })
+
+  describe('removeKey', () => {
+    it('handle empty params', async () => {
+      const response = await handler.removeKey({})
+      expect(response.statusCode, 'to be', 400)
+    })
+
+    it('handle no verified user', async () => {
+      userDao.setNewCode.resolves(null)
+      const response = await handler.removeKey({
+        pathParameters: { keyId },
+        queryStringParameters: { phone: encodeURIComponent(phone) }
+      })
+      expect(response.statusCode, 'to be', 404)
+    })
+
+    it('successfully request a key', async () => {
+      userDao.setNewCode.resolves(code)
+      const response = await handler.removeKey({
+        pathParameters: { keyId },
+        queryStringParameters: { phone: encodeURIComponent(phone) }
+      })
+      expect(response.statusCode, 'to be', 200)
+      expect(twilio.send.callCount, 'to be', 1)
+    })
+
+    it('respond 500 for internal error', async () => {
+      userDao.setNewCode.rejects(new Error('boom'))
+      const response = await handler.removeKey({
+        pathParameters: { keyId },
+        queryStringParameters: { phone: encodeURIComponent(phone) }
       })
       expect(response.statusCode, 'to be', 500)
       expect(console.error.callCount, 'to be', 1)

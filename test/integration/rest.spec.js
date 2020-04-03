@@ -14,6 +14,7 @@ describe('REST api integration test', () => {
   let keyId
   let code1
   let code2
+  let code3
 
   before(async () => {
     dynamo.init()
@@ -72,12 +73,13 @@ describe('REST api integration test', () => {
     it('set user ID as verified', async () => {
       const response = await client.put(`/v1/key/${keyId}`, {
         phone,
-        code: code1
+        code: code1,
+        op: 'verify'
       })
+      expect(response.status, 'to be', 200)
       const key = response.data
       expect(key.id, 'to be', keyId)
       expect(Buffer.from(key.encryptionKey, 'hex').length, 'to be', 32)
-      expect(response.status, 'to be', 200)
     })
   })
 
@@ -87,6 +89,7 @@ describe('REST api integration test', () => {
         params: { phone }
       })
       expect(response.status, 'to be', 200)
+      expect(response.data.message, 'to be', 'Success')
     })
   })
 
@@ -100,10 +103,39 @@ describe('REST api integration test', () => {
       expect(code1, 'not to be', code2)
       const response = await client.put(`/v1/key/${keyId}`, {
         phone,
-        code: code2
+        code: code2,
+        op: 'read'
       })
       expect(response.status, 'to be', 200)
       expect(response.data.encryptionKey, 'to be ok')
+    })
+  })
+
+  describe('DELETE: request key removal', () => {
+    it('delete key document', async () => {
+      const response = await client.delete(`/v1/key/${keyId}`, {
+        params: { phone }
+      })
+      expect(response.status, 'to be', 200)
+      expect(response.data.message, 'to be', 'Success')
+    })
+  })
+
+  describe('PUT: verify key removal', () => {
+    before(async () => {
+      code3 = (await dynamo.get(TABLE_USER, { id: phone })).code
+      expect(code3, 'to be ok')
+    })
+
+    it('verify a different code', async () => {
+      expect(code3, 'not to be', code2)
+      const response = await client.put(`/v1/key/${keyId}`, {
+        phone,
+        code: code3,
+        op: 'remove'
+      })
+      expect(response.status, 'to be', 200)
+      expect(response.data.message, 'to be', 'Success')
     })
   })
 })

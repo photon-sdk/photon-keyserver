@@ -4,7 +4,7 @@ const keyDao = require('./src/dao/key')
 const userDao = require('./src/dao/user')
 const twilio = require('./src/service/twilio')
 const dynamo = require('./src/service/dynamodb')
-const { isPhone, isCode, isId } = require('./src/lib/verify')
+const { ops, isOp, isPhone, isCode, isId } = require('./src/lib/verify')
 const { path, body, query, response, error } = require('./src/lib/http')
 
 dynamo.init()
@@ -36,13 +36,12 @@ exports.getKey = async (event) => {
     if (!isId(keyId) || !isPhone(phone)) {
       return error(400, 'Invalid request')
     }
-    const user = await userDao.getVerified({ phone })
-    if (!user || user.keyId !== keyId) {
+    const code = await userDao.setNewCode({ phone, keyId, op: ops.READ })
+    if (!code) {
       return error(404, 'Invalid params')
     }
-    const code = await userDao.setNewCode({ phone })
     await twilio.send({ phone, code })
-    return response(200)
+    return response(200, 'Success')
   } catch (err) {
     return error(500, 'Error reading key', err)
   }
@@ -51,17 +50,41 @@ exports.getKey = async (event) => {
 exports.verifyKey = async (event) => {
   try {
     const { keyId } = path(event)
-    const { phone, code } = body(event)
-    if (!isId(keyId) || !isPhone(phone) || !isCode(code)) {
+    const { phone, code, op } = body(event)
+    if (!isId(keyId) || !isPhone(phone) || !isCode(code) || !isOp(op)) {
       return error(400, 'Invalid request')
     }
-    const user = await userDao.verify({ phone, code })
-    if (!user || user.keyId !== keyId) {
+    const user = await userDao.verify({ phone, keyId, code, op })
+    if (!user) {
       return error(404, 'Invalid params')
     }
-    const key = await keyDao.get({ id: keyId })
-    return response(200, key)
+    if (op === ops.REMOVE) {
+      await userDao.remove({ phone, keyId })
+      await keyDao.remove({ id: keyId })
+      return response(200, 'Success')
+    } else {
+      const key = await keyDao.get({ id: keyId })
+      return response(200, key)
+    }
   } catch (err) {
-    return error(500, 'Error creating key', err)
+    return error(500, 'Error verifying key', err)
+  }
+}
+
+exports.removeKey = async (event) => {
+  try {
+    const { keyId } = path(event)
+    const { phone } = query(event)
+    if (!isId(keyId) || !isPhone(phone)) {
+      return error(400, 'Invalid request')
+    }
+    const code = await userDao.setNewCode({ phone, keyId, op: ops.REMOVE })
+    if (!code) {
+      return error(404, 'Invalid params')
+    }
+    await twilio.send({ phone, code })
+    return response(200, 'Success')
+  } catch (err) {
+    return error(500, 'Error deleting key', err)
   }
 }
