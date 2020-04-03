@@ -5,7 +5,7 @@
 'use strict'
 
 const dynamo = require('../service/dynamodb')
-const { isPhone, isCode, isId, generateCode } = require('../lib/verify')
+const { ops, isOp, isPhone, isCode, isId, generateCode } = require('../lib/verify')
 
 /**
  * Database documents have the format:
@@ -28,20 +28,22 @@ exports.create = async ({ phone, keyId }) => {
     id: phone,
     type: 'phone',
     keyId,
+    op: ops.VERIFY,
     code,
     verified: false
   })
   return code
 }
 
-exports.verify = async ({ phone, code }) => {
-  if (!isPhone(phone) || !isCode(code)) {
+exports.verify = async ({ phone, keyId, code, op }) => {
+  if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
     throw new Error('Invalid args')
   }
   const user = await dynamo.get(TABLE, { id: phone })
-  if (!user || user.code !== code) {
+  if (!user || user.keyId !== keyId || user.code !== code || user.op !== op) {
     return null
   }
+  user.op = null
   user.verified = true
   user.code = await generateCode()
   await dynamo.put(TABLE, user)
@@ -59,15 +61,27 @@ exports.getVerified = async ({ phone }) => {
   return user
 }
 
-exports.setNewCode = async ({ phone }) => {
-  if (!isPhone(phone)) {
+exports.setNewCode = async ({ phone, keyId, op }) => {
+  if (!isPhone(phone) || !isId(keyId) || !isOp(op)) {
     throw new Error('Invalid args')
   }
   const user = await dynamo.get(TABLE, { id: phone })
-  if (!user) {
-    throw new Error('User not found')
+  if (!user || !user.verified || user.keyId !== keyId) {
+    return null
   }
+  user.op = op
   user.code = await generateCode()
   await dynamo.put(TABLE, user)
   return user.code
+}
+
+exports.remove = async ({ phone, keyId }) => {
+  if (!isPhone(phone) || !isId(keyId)) {
+    throw new Error('Invalid args')
+  }
+  const user = await dynamo.get(TABLE, { id: phone })
+  if (!user || user.keyId !== keyId) {
+    throw new Error('Can only delete user with matching key id')
+  }
+  return dynamo.remove(TABLE, { id: phone })
 }
