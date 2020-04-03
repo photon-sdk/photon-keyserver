@@ -9,11 +9,11 @@
   "scripts": {
     "postinstall": "sls dynamodb install",
     "start": "sls offline start",
-    "test": "npm run -s test:lint && npm run -s test:unit && npm run -s test:ci",
+    "test": "npm run test:lint && npm run test:unit && npm run test:ci",
     "test:lint": "standard *.js 'src/**/*.js' 'test/**/*.js'",
     "test:unit": "mocha test/unit/",
     "test:integration": "IS_OFFLINE=true mocha test/integration/",
-    "test:ci": "sls offline start & P1=$! && wait-on tcp:3000 && npm run -s test:integration && kill $P1"
+    "test:ci": "sls offline start & P1=$! && wait-on tcp:3000 && npm run test:integration && kill $P1"
   },
   "dependencies": {
     "aws-sdk": "^2.635.0",
