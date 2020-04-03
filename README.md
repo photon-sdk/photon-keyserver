@@ -4,11 +4,17 @@ A keyserver to tie bitcoin wallets to phone numbers
 ## Setup
 
 ```bash
-npm i
+npm install
 ```
 
-## Run tests locally
+## Run tests
 
 ```bash
 npm test
+```
+
+## Start local instance
+
+```bash
+npm start
 ```
