@@ -66,6 +66,12 @@ describe('HTTP Lib unit test', () => {
       expect(res.body, 'to be', '{"foo":"bar"}')
     })
 
+    it('return wrap string message in json response', async () => {
+      const res = http.response(200, 'foo')
+      expect(res.statusCode, 'to be', 200)
+      expect(res.body, 'to be', '{"message":"foo"}')
+    })
+
     it('return empty response object for null', async () => {
       const res = http.response(200)
       expect(res.statusCode, 'to be', 200)

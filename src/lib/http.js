@@ -26,12 +26,12 @@ exports.query = event => {
 
 exports.response = (status, body = {}) => ({
   statusCode: status,
-  body: JSON.stringify(body)
+  body: JSON.stringify(typeof body === 'string' ? { message: body } : body)
 })
 
 exports.error = (status, message, err) => {
   if (err) {
     console.error(err)
   }
-  return this.response(status, { message })
+  return this.response(status, message)
 }
