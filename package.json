@@ -8,12 +8,12 @@
   },
   "scripts": {
     "postinstall": "sls dynamodb install",
-    "start": "sls offline start",
+    "start": "IS_OFFLINE=true sls offline start",
     "test": "npm run test:lint && npm run test:unit && npm run test:ci",
     "test:lint": "standard *.js 'src/**/*.js' 'test/**/*.js'",
     "test:unit": "mocha test/unit/",
     "test:integration": "IS_OFFLINE=true mocha test/integration/",
-    "test:ci": "sls offline start & P1=$! && wait-on tcp:3000 && npm run test:integration && kill $P1"
+    "test:ci": "npm start & P1=$! && wait-on tcp:3000 && npm run test:integration && kill $P1"
   },
   "dependencies": {
     "aws-sdk": "^2.635.0",
@@ -25,7 +25,7 @@
     "mocha": "^7.1.1",
     "serverless": "^1.67.0",
     "serverless-dynamodb-local": "^0.2.39",
-    "serverless-offline": "^5.12.1",
+    "serverless-offline": "^6.1.4",
     "sinon": "^9.0.1",
     "standard": "^14.3.3",
     "unexpected": "^11.14.0",
