@@ -43,6 +43,8 @@ describe('DynamoDB Service integration test', () => {
     it('delete item by id', async () => {
       const response = await dynamo.remove(TABLE, { id: 'foo' })
       expect(response, 'to be ok')
+      const item = await dynamo.get(TABLE, { id: 'foo' })
+      expect(item, 'to equal', null)
     })
 
     it('fail on invalid args', async () => {

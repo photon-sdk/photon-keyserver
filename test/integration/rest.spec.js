@@ -136,6 +136,8 @@ describe('REST api integration test', () => {
       })
       expect(response.status, 'to be', 200)
       expect(response.data.message, 'to be', 'Success')
+      const user = await dynamo.get(TABLE_USER, { id: phone })
+      expect(user, 'to be', null)
     })
   })
 })

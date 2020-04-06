@@ -27,7 +27,7 @@ exports.put = async (TableName, Item) => {
 
 exports.get = async (TableName, Key) => {
   const doc = await _client.get({ TableName, Key }).promise()
-  return doc.Item
+  return doc.Item || null
 }
 
 exports.remove = async (TableName, Key) => {
