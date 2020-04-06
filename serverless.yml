@@ -1,6 +1,6 @@
 service: photon-keyserver
 app: photon-keyserver
-org: tankred
+org: hasedev
 
 plugins:
   - serverless-dynamodb-local
