@@ -12,5 +12,5 @@ deploy:
   script: sls deploy
   skip_cleanup: true
   on:
-    repo: tanx/photon-keyserver
+    repo: photon-sdk/photon-keyserver
     branch: master

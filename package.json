@@ -4,7 +4,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tanx/photon-keyserver.git"
+    "url": "git+https://github.com/photon-sdk/photon-keyserver.git"
   },
   "scripts": {
     "postinstall": "sls dynamodb install",
