@@ -1,5 +1,5 @@
 # photon-keyserver [![Build Status](https://travis-ci.org/photon-sdk/photon-keyserver.svg?branch=master)](https://travis-ci.org/photon-sdk/photon-keyserver)
-A keyserver to tie bitcoin wallets to phone numbers
+2FA server for encrypted private key backup
 
 ## Setup
 
