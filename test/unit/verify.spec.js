@@ -131,9 +131,9 @@ describe('Verify Lib unit test', () => {
   })
 
   describe('generateKey', () => {
-    it('returns a random 32 byte hex encoded string', async () => {
+    it('returns a random 32 byte base64 encoded string', async () => {
       const key = await verify.generateKey()
-      expect(key, 'to match', /^[0-9a-f]{64}$/)
+      expect(Buffer.from(key, 'base64').length, 'to be', 32)
     })
 
     it('fail on crypto error', async () => {

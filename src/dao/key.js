@@ -12,7 +12,7 @@ const { isId, generateKey } = require('../lib/verify')
  * Database documents have the format:
  * {
  *   id: '550e8400-e29b-11d4-a716-446655440000', // a randomly generated UUID
- *   encryptionKey: 'e9e0e7159c57ad8298c9faf3df73aa04d792a3769a2e294ef91fa6cb8858338d',
+ *   encryptionKey: '6eDnFZxXrYKYyfrz33OqBNeSo3aaLilO+R+my4hYM40=',
  * }
  */
 const TABLE = process.env.DYNAMODB_TABLE_KEY

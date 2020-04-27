@@ -79,7 +79,7 @@ describe('REST api integration test', () => {
       expect(response.status, 'to be', 200)
       const key = response.data
       expect(key.id, 'to be', keyId)
-      expect(Buffer.from(key.encryptionKey, 'hex').length, 'to be', 32)
+      expect(Buffer.from(key.encryptionKey, 'base64').length, 'to be', 32)
     })
   })
 

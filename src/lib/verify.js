@@ -31,7 +31,7 @@ exports.isId = id => {
 
 exports.generateKey = async () => {
   const buf = await promisify(crypto.randomBytes)(32)
-  return buf.toString('hex')
+  return buf.toString('base64')
 }
 
 exports.generateCode = async () => {
