@@ -2,7 +2,7 @@
 
 'use strict'
 
-const axios = require('axios')
+const Frisbee = require('frisbee')
 const expect = require('unexpected')
 const dynamo = require('../../src/service/dynamodb')
 
@@ -18,9 +18,12 @@ describe('REST api integration test', () => {
 
   before(async () => {
     dynamo.init()
-    client = axios.create({
-      baseURL: 'http://localhost:3000',
-      validateStatus: null
+    client = new Frisbee({
+      baseURI: 'http://localhost:3000',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json'
+      }
     })
   })
 
@@ -31,15 +34,17 @@ describe('REST api integration test', () => {
 
   describe('POST: upload new key', () => {
     it('handle empty body', async () => {
-      const response = await client.post('/dev/v1/key', {})
+      const response = await client.post('/dev/v1/key', {
+        body: {}
+      })
       expect(response.status, 'to be', 400)
     })
 
     it('create key document', async () => {
       const response = await client.post('/dev/v1/key', {
-        phone
+        body: { phone }
       })
-      keyId = response.data.id
+      keyId = response.body.id
       expect(keyId, 'to be ok')
       expect(response.status, 'to be', 201)
     })
@@ -66,18 +71,22 @@ describe('REST api integration test', () => {
     })
 
     it('handle empty body', async () => {
-      const response = await client.put(`/dev/v1/key/${keyId}`, {})
+      const response = await client.put(`/dev/v1/key/${keyId}`, {
+        body: {}
+      })
       expect(response.status, 'to be', 400)
     })
 
     it('set user ID as verified', async () => {
       const response = await client.put(`/dev/v1/key/${keyId}`, {
-        phone,
-        code: code1,
-        op: 'verify'
+        body: {
+          phone,
+          code: code1,
+          op: 'verify'
+        }
       })
       expect(response.status, 'to be', 200)
-      const key = response.data
+      const key = response.body
       expect(key.id, 'to be', keyId)
       expect(Buffer.from(key.encryptionKey, 'base64').length, 'to be', 32)
     })
@@ -89,7 +98,7 @@ describe('REST api integration test', () => {
         params: { phone }
       })
       expect(response.status, 'to be', 200)
-      expect(response.data.message, 'to be', 'Success')
+      expect(response.body.message, 'to be', 'Success')
     })
   })
 
@@ -102,12 +111,14 @@ describe('REST api integration test', () => {
     it('verify a different code', async () => {
       expect(code1, 'not to be', code2)
       const response = await client.put(`/dev/v1/key/${keyId}`, {
-        phone,
-        code: code2,
-        op: 'read'
+        body: {
+          phone,
+          code: code2,
+          op: 'read'
+        }
       })
       expect(response.status, 'to be', 200)
-      expect(response.data.encryptionKey, 'to be ok')
+      expect(response.body.encryptionKey, 'to be ok')
     })
   })
 
@@ -117,7 +128,7 @@ describe('REST api integration test', () => {
         params: { phone }
       })
       expect(response.status, 'to be', 200)
-      expect(response.data.message, 'to be', 'Success')
+      expect(response.body.message, 'to be', 'Success')
     })
   })
 
@@ -130,12 +141,14 @@ describe('REST api integration test', () => {
     it('verify a different code', async () => {
       expect(code3, 'not to be', code2)
       const response = await client.put(`/dev/v1/key/${keyId}`, {
-        phone,
-        code: code3,
-        op: 'remove'
+        body: {
+          phone,
+          code: code3,
+          op: 'remove'
+        }
       })
       expect(response.status, 'to be', 200)
-      expect(response.data.message, 'to be', 'Success')
+      expect(response.body.message, 'to be', 'Success')
       const user = await dynamo.get(TABLE_USER, { id: phone })
       expect(user, 'to be', null)
     })
