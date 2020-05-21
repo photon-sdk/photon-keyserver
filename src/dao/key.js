@@ -24,6 +24,8 @@ exports.create = async () => {
   return id
 }
 
+exports.createDummy = () => uuid()
+
 exports.get = async ({ id }) => {
   if (!isId(id)) {
     throw new Error('Invalid args')

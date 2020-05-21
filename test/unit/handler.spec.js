@@ -37,10 +37,14 @@ describe('Api Handler unit test', () => {
       expect(response.statusCode, 'to be', 400)
     })
 
-    it('handle existing verified user', async () => {
+    it('existing user should look like success for privacy', async () => {
       userDao.getVerified.resolves('some-user')
+      keyDao.createDummy.returns('dummy-id')
       const response = await handler.createKey({ body: JSON.stringify({ phone }) })
-      expect(response.statusCode, 'to be', 409)
+      expect(response.statusCode, 'to be', 201)
+      expect(JSON.parse(response.body).id, 'to be', 'dummy-id')
+      expect(keyDao.create.callCount, 'to be', 0)
+      expect(twilio.send.callCount, 'to be', 0)
     })
 
     it('successfully create a new user', async () => {

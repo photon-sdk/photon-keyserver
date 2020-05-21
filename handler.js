@@ -18,7 +18,7 @@ exports.createKey = async (event) => {
     }
     const user = await userDao.getVerified({ phone })
     if (user) {
-      return error(409, 'Key already exists for user id')
+      return response(201, { id: keyDao.createDummy() })
     }
     const id = await keyDao.create()
     const code = await userDao.create({ phone, keyId: id })

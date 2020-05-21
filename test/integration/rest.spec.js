@@ -122,6 +122,17 @@ describe('REST api integration test', () => {
     })
   })
 
+  describe('POST: create key for existing phone number', () => {
+    it('return new dummy key id to preserve user privacy', async () => {
+      const response = await client.post('/dev/v1/key', {
+        body: { phone }
+      })
+      expect(response.body.id, 'to be ok')
+      expect(response.body.id, 'not to equal', keyId)
+      expect(response.status, 'to be', 201)
+    })
+  })
+
   describe('DELETE: request key removal', () => {
     it('delete key document', async () => {
       const response = await client.delete(`/dev/v1/key/${keyId}`, {
