@@ -10,7 +10,7 @@ const { ops, isOp, isPhone, isCode, isId, generateCode } = require('../lib/verif
 /**
  * Database documents have the format:
  * {
- *   id: '004917512345678', // or 'jon@smith.com' for type email
+ *   id: '+4917512345678', // or 'jon@smith.com' for type email
  *   type: 'phone', // or 'email' for email addresses
  *   keyId: '550e8400-e29b-11d4-a716-446655440000' // reference of the encryption key
  *   code: '123456', // random 6 char code used to prove ownership
