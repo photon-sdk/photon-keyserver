@@ -174,7 +174,7 @@ describe('Verify Lib unit test', () => {
       salt = await verify.generateSalt()
     })
 
-    it('returns a random 6 digit string', async () => {
+    it('creates the same hash', async () => {
       const hash1 = await verify.createHash(phone, salt)
       const hash2 = await verify.createHash(phone, salt)
       expect(Buffer.from(hash1, 'base64').length, 'to be', 32)
