@@ -61,12 +61,16 @@ exports.verify = async ({ phone, keyId, code, op }) => {
   return user
 }
 
-exports.getVerified = async ({ phone }) => {
+exports.get = async ({ phone }) => {
   if (!isPhone(phone)) {
     throw new Error('Invalid args')
   }
   const id = await _hashId(phone)
-  const user = await dynamo.get(TABLE, { id })
+  return dynamo.get(TABLE, { id })
+}
+
+exports.getVerified = async ({ phone }) => {
+  const user = await this.get({ phone })
   if (!user || !user.verified) {
     return null
   }

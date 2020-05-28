@@ -94,6 +94,29 @@ describe('User DAO unit test', () => {
     })
   })
 
+  describe('get', () => {
+    it('fail on invalid args', async () => {
+      await expect(userDao.get({}), 'to be rejected with', /Invalid/)
+    })
+
+    it('return null if no user is found', async () => {
+      dynamo.get.resolves(null)
+      const user = await userDao.get({ phone })
+      expect(user, 'to be', null)
+    })
+
+    it('fail on dynamo get error', async () => {
+      dynamo.get.rejects(new Error('boom'))
+      await expect(userDao.get({ phone }), 'to be rejected with', /boom/)
+    })
+
+    it('return a user', async () => {
+      dynamo.get.resolves({})
+      const user = await userDao.get({ phone })
+      expect(user, 'to be ok')
+    })
+  })
+
   describe('getVerified', () => {
     it('fail on invalid args', async () => {
       await expect(userDao.getVerified({}), 'to be rejected with', /Invalid/)
