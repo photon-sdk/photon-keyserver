@@ -39,3 +39,14 @@ exports.generateCode = async () => {
   const str = parseInt(buf.toString('hex'), 16).toString()
   return str.substr(str.length - 6).padStart(6, '0')
 }
+
+exports.generateSalt = () => this.generateKey()
+
+exports.createHash = async (secret, salt) => {
+  salt = Buffer.from(salt, 'base64')
+  if (!secret || salt.length !== 32) {
+    throw new Error('Invalid args')
+  }
+  const buf = await promisify(crypto.scrypt)(secret, salt, 32)
+  return buf.toString('base64')
+}

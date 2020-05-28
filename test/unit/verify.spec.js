@@ -153,4 +153,37 @@ describe('Verify Lib unit test', () => {
       await expect(verify.generateCode(), 'to be rejected with', 'boom')
     })
   })
+
+  describe('generateSalt', () => {
+    it('returns a random 32 byte base64 encoded string', async () => {
+      const salt = await verify.generateSalt()
+      expect(Buffer.from(salt, 'base64').length, 'to be', 32)
+    })
+
+    it('fail on crypto error', async () => {
+      sandbox.stub(crypto, 'randomBytes').yields(new Error('boom'))
+      await expect(verify.generateSalt(), 'to be rejected with', 'boom')
+    })
+  })
+
+  describe('createHash', () => {
+    const phone = '+4917512345678'
+    let salt
+
+    beforeEach(async () => {
+      salt = await verify.generateSalt()
+    })
+
+    it('returns a random 6 digit string', async () => {
+      const hash1 = await verify.createHash(phone, salt)
+      const hash2 = await verify.createHash(phone, salt)
+      expect(Buffer.from(hash1, 'base64').length, 'to be', 32)
+      expect(hash1, 'to equal', hash2)
+    })
+
+    it('fail on crypto error', async () => {
+      sandbox.stub(crypto, 'scrypt').yields(new Error('boom'))
+      await expect(verify.createHash(phone, salt), 'to be rejected with', 'boom')
+    })
+  })
 })
