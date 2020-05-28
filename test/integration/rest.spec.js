@@ -4,11 +4,10 @@
 
 const Frisbee = require('frisbee')
 const expect = require('unexpected')
+const userDao = require('../../src/dao/user')
 const dynamo = require('../../src/service/dynamodb')
 
 describe('REST api integration test', () => {
-  const TABLE_KEY = 'photon-keyserver-dev-key'
-  const TABLE_USER = 'photon-keyserver-dev-user'
   const phone = '+4917512345678'
   let client
   let keyId
@@ -25,11 +24,6 @@ describe('REST api integration test', () => {
         'Content-Type': 'application/json'
       }
     })
-  })
-
-  after(async () => {
-    await dynamo.remove(TABLE_KEY, { id: keyId })
-    await dynamo.remove(TABLE_USER, { id: phone })
   })
 
   describe('POST: upload new key', () => {
@@ -66,7 +60,7 @@ describe('REST api integration test', () => {
 
   describe('PUT: verify upload and download key', () => {
     before(async () => {
-      code1 = (await dynamo.get(TABLE_USER, { id: phone })).code
+      code1 = (await userDao.get({ phone })).code
       expect(code1, 'to be ok')
     })
 
@@ -104,7 +98,7 @@ describe('REST api integration test', () => {
 
   describe('PUT: verify read request and download key', () => {
     before(async () => {
-      code2 = (await dynamo.get(TABLE_USER, { id: phone })).code
+      code2 = (await userDao.get({ phone })).code
       expect(code2, 'to be ok')
     })
 
@@ -145,7 +139,7 @@ describe('REST api integration test', () => {
 
   describe('PUT: verify key removal', () => {
     before(async () => {
-      code3 = (await dynamo.get(TABLE_USER, { id: phone })).code
+      code3 = (await userDao.get({ phone })).code
       expect(code3, 'to be ok')
     })
 
@@ -160,7 +154,7 @@ describe('REST api integration test', () => {
       })
       expect(response.status, 'to be', 200)
       expect(response.body.message, 'to be', 'Success')
-      const user = await dynamo.get(TABLE_USER, { id: phone })
+      const user = await userDao.get({ phone })
       expect(user, 'to be', null)
     })
   })

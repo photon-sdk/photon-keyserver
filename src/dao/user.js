@@ -5,13 +5,22 @@
 'use strict'
 
 const dynamo = require('../service/dynamodb')
-const { ops, isOp, isPhone, isCode, isId, generateCode } = require('../lib/verify')
+const {
+  ops,
+  isOp,
+  isPhone,
+  isCode,
+  isId,
+  generateCode,
+  createHash,
+  generateSalt
+} = require('../lib/verify')
 
 /**
  * Database documents have the format:
  * {
- *   id: '+4917512345678', // or 'jon@smith.com' for type email
- *   type: 'phone', // or 'email' for email addresses
+ *   id: '6Ec52IZrNB+te2YRdpIqVet4zzziz1ypu/iGyPF6DhA=', // hash of phone or email
+ *   type: 'phone', // or 'email'
  *   keyId: '550e8400-e29b-11d4-a716-446655440000' // reference of the encryption key
  *   code: '123456', // random 6 char code used to prove ownership
  *   verified: true // if the user ID has been verified
@@ -24,8 +33,9 @@ exports.create = async ({ phone, keyId }) => {
     throw new Error('Invalid args')
   }
   const code = await generateCode()
+  const id = await _hashId(phone)
   await dynamo.put(TABLE, {
-    id: phone,
+    id,
     type: 'phone',
     keyId,
     op: ops.VERIFY,
@@ -39,7 +49,8 @@ exports.verify = async ({ phone, keyId, code, op }) => {
   if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
     throw new Error('Invalid args')
   }
-  const user = await dynamo.get(TABLE, { id: phone })
+  const id = await _hashId(phone)
+  const user = await dynamo.get(TABLE, { id })
   if (!user || user.keyId !== keyId || user.code !== code || user.op !== op) {
     return null
   }
@@ -50,11 +61,16 @@ exports.verify = async ({ phone, keyId, code, op }) => {
   return user
 }
 
-exports.getVerified = async ({ phone }) => {
+exports.get = async ({ phone }) => {
   if (!isPhone(phone)) {
     throw new Error('Invalid args')
   }
-  const user = await dynamo.get(TABLE, { id: phone })
+  const id = await _hashId(phone)
+  return dynamo.get(TABLE, { id })
+}
+
+exports.getVerified = async ({ phone }) => {
+  const user = await this.get({ phone })
   if (!user || !user.verified) {
     return null
   }
@@ -65,7 +81,8 @@ exports.setNewCode = async ({ phone, keyId, op }) => {
   if (!isPhone(phone) || !isId(keyId) || !isOp(op)) {
     throw new Error('Invalid args')
   }
-  const user = await dynamo.get(TABLE, { id: phone })
+  const id = await _hashId(phone)
+  const user = await dynamo.get(TABLE, { id })
   if (!user || !user.verified || user.keyId !== keyId) {
     return null
   }
@@ -79,9 +96,37 @@ exports.remove = async ({ phone, keyId }) => {
   if (!isPhone(phone) || !isId(keyId)) {
     throw new Error('Invalid args')
   }
-  const user = await dynamo.get(TABLE, { id: phone })
+  const id = await _hashId(phone)
+  const user = await dynamo.get(TABLE, { id })
   if (!user || user.keyId !== keyId) {
     throw new Error('Can only delete user with matching key id')
   }
-  return dynamo.remove(TABLE, { id: phone })
+  return dynamo.remove(TABLE, { id })
+}
+
+//
+// helper functions
+//
+
+let _salt
+
+const _getSalt = async () => {
+  if (_salt) {
+    return _salt
+  }
+  const id = 'salt'
+  const doc = await dynamo.get(TABLE, { id })
+  if (doc) {
+    _salt = doc.salt
+    return _salt
+  } else {
+    _salt = await generateSalt()
+    await dynamo.put(TABLE, { id, salt: _salt })
+    return _salt
+  }
+}
+
+const _hashId = async secret => {
+  const salt = await _getSalt()
+  return createHash(secret, salt)
 }
