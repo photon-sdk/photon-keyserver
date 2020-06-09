@@ -168,17 +168,12 @@ describe('Verify Lib unit test', () => {
 
   describe('createHash', () => {
     const phone = '+4917512345678'
-    let salt
-
-    beforeEach(async () => {
-      salt = await verify.generateSalt()
-    })
+    const salt = 'tOJwVFGDzfUgkYnIqM4wg51oQ5/yZ56w0lE4lA0pIXU='
 
     it('creates the same hash', async () => {
-      const hash1 = await verify.createHash(phone, salt)
-      const hash2 = await verify.createHash(phone, salt)
-      expect(Buffer.from(hash1, 'base64').length, 'to be', 32)
-      expect(hash1, 'to equal', hash2)
+      const result = 'ImS3Zs1tdXD/1O95aQ8kVvVXNxW1bwSg+Z/ov9WVaEw='
+      const hash = await verify.createHash(phone, salt)
+      expect(hash, 'to equal', result)
     })
 
     it('fail on crypto error', async () => {
