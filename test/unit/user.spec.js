@@ -4,6 +4,7 @@
 
 const sinon = require('sinon')
 const expect = require('unexpected')
+const verify = require('../../src/lib/verify')
 const dynamo = require('../../src/service/dynamodb')
 const userDao = require('../../src/dao/user')
 
@@ -48,29 +49,52 @@ describe('User DAO unit test', () => {
 
     it('return null if no user is found', async () => {
       dynamo.get.resolves(null)
-      const user = await userDao.verify({ phone, keyId, op, code: code1 })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
+      expect(delay, 'to be', undefined)
       expect(dynamo.put.callCount, 'to equal', 0)
     })
 
-    it('not verify a user with incorrect code', async () => {
-      dynamo.get.resolves({ keyId, op, code: code2, verified: false })
-      const user = await userDao.verify({ phone, keyId, op, code: code1 })
+    it('not verify a user with incorrect code (no rate limit)', async () => {
+      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 1 })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
-      expect(dynamo.put.callCount, 'to equal', 0)
+      expect(delay, 'to be', null)
+      expect(dynamo.put.callCount, 'to equal', 1)
+      expect(dynamo.put.calledWithMatch(sinon.any, { invalidCount: 2 }), 'to be ok')
+    })
+
+    it('rate limit brute forcing of code', async () => {
+      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 2 })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
+      expect(user, 'to be', null)
+      expect(verify.isDateISOString(delay), 'to be', true)
+      expect(dynamo.put.callCount, 'to equal', 1)
+      expect(dynamo.put.calledWithMatch(sinon.any, { invalidCount: 3 }), 'to be ok')
+    })
+
+    it('reset rate limit after time delay is over', async () => {
+      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 3, firstInvalid: '2020-06-01T03:33:47.980Z' })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
+      expect(user, 'to be', null)
+      expect(delay, 'to be', null)
+      expect(dynamo.put.callCount, 'to equal', 1)
+      expect(dynamo.put.calledWithMatch(sinon.any, { invalidCount: 0, firstInvalid: null }), 'to be ok')
     })
 
     it('not verify a user with incorrect keyId', async () => {
       dynamo.get.resolves({ keyId: 'wrong-id', op, code: code1, verified: false })
-      const user = await userDao.verify({ phone, keyId, op, code: code1 })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
+      expect(delay, 'to be', undefined)
       expect(dynamo.put.callCount, 'to equal', 0)
     })
 
     it('not verify a user with incorrect op', async () => {
       dynamo.get.resolves({ keyId, op: 'remove', code: code1, verified: false })
-      const user = await userDao.verify({ phone, keyId, op, code: code1 })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
+      expect(delay, 'to be', undefined)
       expect(dynamo.put.callCount, 'to equal', 0)
     })
 
@@ -87,9 +111,10 @@ describe('User DAO unit test', () => {
 
     it('verify a user with correct code', async () => {
       dynamo.get.resolves({ keyId, op, code: code1, verified: false })
-      const user = await userDao.verify({ phone, keyId, op, code: code1 })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user.verified, 'to be', true)
       expect(user.code, 'not to be', code1)
+      expect(delay, 'to be', undefined)
       expect(dynamo.put.callCount, 'to equal', 1)
     })
   })

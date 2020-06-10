@@ -11,6 +11,7 @@ const {
   isPhone,
   isCode,
   isId,
+  addDays,
   generateCode,
   createHash,
   generateSalt
@@ -24,7 +25,9 @@ const {
  *   keyId: '550e8400-e29b-11d4-a716-446655440000' // reference of the encryption key
  *   op: 'read', // the operation which needs to be verified with a code
  *   code: '123456', // random 6 char code used to prove ownership
- *   verified: true // if the user ID has been verified
+ *   verified: true, // if the user ID has been verified
+ *   firstInvalid: '2020-06-09T03:33:47.980Z', // time of first failed verify request
+ *   invalidCount: 3, // the number of failed verify requests (including firstInvalid)
  * }
  */
 const TABLE = process.env.DYNAMODB_TABLE_USER
@@ -41,7 +44,9 @@ exports.create = async ({ phone, keyId }) => {
     keyId,
     op: ops.VERIFY,
     code,
-    verified: false
+    verified: false,
+    firstInvalid: null,
+    invalidCount: 0
   })
   return code
 }
@@ -52,14 +57,53 @@ exports.verify = async ({ phone, keyId, code, op }) => {
   }
   const id = await _hashId(phone)
   const user = await dynamo.get(TABLE, { id })
-  if (!user || user.keyId !== keyId || user.code !== code || user.op !== op) {
-    return null
+  if (!user || user.keyId !== keyId || user.op !== op) {
+    return { user: null }
   }
+  if (user.code !== code) {
+    const delay = await _checkRateLimit(user)
+    return { user: null, delay }
+  }
+  await _markVerified(user)
+  return { user }
+}
+
+const _checkRateLimit = async user => {
+  if (!user.firstInvalid) {
+    user.firstInvalid = new Date().toISOString()
+  }
+  user.invalidCount++
+  const delay = _delayUntil(user.firstInvalid)
+  let rateLimit
+  if (_isRateLimit(user.invalidCount) && !_isDelayOver(delay)) {
+    rateLimit = true
+  } else if (_isRateLimit(user.invalidCount) && _isDelayOver(delay)) {
+    _resetRateLimit(user)
+    rateLimit = false
+  } else {
+    rateLimit = false
+  }
+  await dynamo.put(TABLE, user)
+  return rateLimit ? delay.toISOString() : null
+}
+
+const _isRateLimit = invalidCount => invalidCount >= 3 // until rate limit is hit
+
+const _delayUntil = firstInvalid => addDays(firstInvalid, 7) // days until limit is lifted
+
+const _isDelayOver = delay => delay <= new Date()
+
+const _resetRateLimit = user => {
+  user.firstInvalid = null
+  user.invalidCount = 0
+}
+
+const _markVerified = async user => {
   user.op = null
   user.verified = true
   user.code = await generateCode()
+  _resetRateLimit(user)
   await dynamo.put(TABLE, user)
-  return user
 }
 
 exports.get = async ({ phone }) => {
