@@ -56,13 +56,13 @@ describe('User DAO unit test', () => {
     })
 
     it('not verify a user with incorrect code (no rate limit)', async () => {
-      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 1 })
+      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 2 })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(delay, 'to be', null)
       expect(dynamo.put.callCount, 'to equal', 1)
       expect(dynamo.put.calledWithMatch(sinon.match.any, {
-        invalidCount: 2,
+        invalidCount: 3,
         firstInvalid: sinon.match.string
       }), 'to be ok')
     })

@@ -87,7 +87,7 @@ const _checkRateLimit = async user => {
   return rateLimit ? delay.toISOString() : null
 }
 
-const _isRateLimit = invalidCount => invalidCount >= 3 // until rate limit is hit
+const _isRateLimit = invalidCount => invalidCount > 3 // until rate limit is hit
 
 const _delayUntil = firstInvalid => addDays(firstInvalid, 7) // days until limit is lifted
 
