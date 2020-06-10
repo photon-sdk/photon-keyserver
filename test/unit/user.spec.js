@@ -61,7 +61,10 @@ describe('User DAO unit test', () => {
       expect(user, 'to be', null)
       expect(delay, 'to be', null)
       expect(dynamo.put.callCount, 'to equal', 1)
-      expect(dynamo.put.calledWithMatch(sinon.any, { invalidCount: 2 }), 'to be ok')
+      expect(dynamo.put.calledWithMatch(sinon.match.any, {
+        invalidCount: 2,
+        firstInvalid: sinon.match.string
+      }), 'to be ok')
     })
 
     it('rate limit brute forcing of code', async () => {
@@ -70,7 +73,10 @@ describe('User DAO unit test', () => {
       expect(user, 'to be', null)
       expect(verify.isDateISOString(delay), 'to be', true)
       expect(dynamo.put.callCount, 'to equal', 1)
-      expect(dynamo.put.calledWithMatch(sinon.any, { invalidCount: 3 }), 'to be ok')
+      expect(dynamo.put.calledWithMatch(sinon.match.any, {
+        invalidCount: 3,
+        firstInvalid: sinon.match.string
+      }), 'to be ok')
     })
 
     it('reset rate limit after time delay is over', async () => {
@@ -79,7 +85,10 @@ describe('User DAO unit test', () => {
       expect(user, 'to be', null)
       expect(delay, 'to be', null)
       expect(dynamo.put.callCount, 'to equal', 1)
-      expect(dynamo.put.calledWithMatch(sinon.any, { invalidCount: 0, firstInvalid: null }), 'to be ok')
+      expect(dynamo.put.calledWithMatch(sinon.match.any, {
+        invalidCount: 0,
+        firstInvalid: null
+      }), 'to be ok')
     })
 
     it('not verify a user with incorrect keyId', async () => {
