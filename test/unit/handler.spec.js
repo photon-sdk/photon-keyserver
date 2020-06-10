@@ -106,7 +106,7 @@ describe('Api Handler unit test', () => {
     })
 
     it('handle no user found', async () => {
-      userDao.verify.resolves(null)
+      userDao.verify.resolves({ user: null })
       const response = await handler.verifyKey({
         pathParameters: { keyId },
         body: JSON.stringify({ phone, code, op })
@@ -114,8 +114,19 @@ describe('Api Handler unit test', () => {
       expect(response.statusCode, 'to be', 404)
     })
 
+    it('rate limit brute force attack', async () => {
+      userDao.verify.resolves({ user: null, delay: '2020-06-09T03:33:47.980Z' })
+      const response = await handler.verifyKey({
+        pathParameters: { keyId },
+        body: JSON.stringify({ phone, code, op })
+      })
+      expect(response.statusCode, 'to be', 429)
+      expect(JSON.parse(response.body).message, 'to match', /Rate limit/)
+      expect(JSON.parse(response.body).delay, 'to be ok')
+    })
+
     it('respond 500 if user remove fails', async () => {
-      userDao.verify.resolves({ keyId })
+      userDao.verify.resolves({ user: { keyId } })
       userDao.remove.rejects(new Error('boom'))
       const response = await handler.verifyKey({
         pathParameters: { keyId },
@@ -127,7 +138,7 @@ describe('Api Handler unit test', () => {
     })
 
     it('successfully verify key remove', async () => {
-      userDao.verify.resolves({ keyId })
+      userDao.verify.resolves({ user: { keyId } })
       const response = await handler.verifyKey({
         pathParameters: { keyId },
         body: JSON.stringify({ phone, code, op: 'remove' })
@@ -138,7 +149,7 @@ describe('Api Handler unit test', () => {
     })
 
     it('successfully verify key read', async () => {
-      userDao.verify.resolves({ keyId })
+      userDao.verify.resolves({ user: { keyId } })
       keyDao.get.resolves({ id: keyId })
       const response = await handler.verifyKey({
         pathParameters: { keyId },

@@ -54,7 +54,10 @@ exports.verifyKey = async (event) => {
     if (!isId(keyId) || !isPhone(phone) || !isCode(code) || !isOp(op)) {
       return error(400, 'Invalid request')
     }
-    const user = await userDao.verify({ phone, keyId, code, op })
+    const { user, delay } = await userDao.verify({ phone, keyId, code, op })
+    if (delay) {
+      return response(429, { message: 'Rate limit until', delay })
+    }
     if (!user) {
       return error(404, 'Invalid params')
     }

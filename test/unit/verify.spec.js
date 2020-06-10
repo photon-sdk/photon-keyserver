@@ -130,6 +130,39 @@ describe('Verify Lib unit test', () => {
     })
   })
 
+  describe('isDateISOString', () => {
+    it('returns true for a valid date string', () => {
+      expect(verify.isDateISOString('2020-06-09T03:33:47.980Z'), 'to be', true)
+    })
+
+    it('returns false for an invalid date string', () => {
+      expect(verify.isDateISOString('2020-06-09T03:33:47.980'), 'to be', false)
+    })
+
+    it('returns false for null', () => {
+      expect(verify.isDateISOString(null), 'to be', false)
+    })
+
+    it('returns false for undefined', () => {
+      expect(verify.isDateISOString(undefined), 'to be', false)
+    })
+
+    it('returns false for empty string', () => {
+      expect(verify.isDateISOString(''), 'to be', false)
+    })
+  })
+
+  describe('addDays', () => {
+    it('add days to ISO date string', () => {
+      const date = verify.addDays('2020-06-09T03:33:47.980Z', 2)
+      expect(date.toISOString(), 'to be', '2020-06-11T03:33:47.980Z')
+    })
+
+    it('fail on invalid input', () => {
+      expect(verify.addDays.bind(), 'to throw', /Invalid/)
+    })
+  })
+
   describe('generateKey', () => {
     it('returns a random 32 byte base64 encoded string', async () => {
       const key = await verify.generateKey()
