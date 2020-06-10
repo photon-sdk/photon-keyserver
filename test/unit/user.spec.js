@@ -234,7 +234,13 @@ describe('User DAO unit test', () => {
     })
 
     it('set a new code and persist', async () => {
-      dynamo.get.resolves({ keyId, verified: true })
+      dynamo.get.resolves({
+        keyId,
+        code: 'old',
+        verified: true,
+        invalidCount: 6,
+        firstInvalid: '2020-06-01T03:33:47.980Z'
+      })
       const code = await userDao.setNewCode({ phone, keyId, op })
       expect(code, 'to match', /^\d{6}$/)
       expect(dynamo.put.callCount, 'to equal', 1)
@@ -243,8 +249,8 @@ describe('User DAO unit test', () => {
         op,
         code,
         verified: true,
-        firstInvalid: null,
-        invalidCount: 0
+        firstInvalid: '2020-06-01T03:33:47.980Z',
+        invalidCount: 6
       }), 'to be ok')
     })
   })
