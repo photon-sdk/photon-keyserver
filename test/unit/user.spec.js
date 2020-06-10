@@ -56,7 +56,13 @@ describe('User DAO unit test', () => {
     })
 
     it('not verify a user with incorrect code (no rate limit)', async () => {
-      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 2 })
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code2,
+        verified: false,
+        invalidCount: 2
+      })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(delay, 'to be', null)
@@ -68,7 +74,13 @@ describe('User DAO unit test', () => {
     })
 
     it('rate limit brute forcing of incorrect code', async () => {
-      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 3 })
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code2,
+        verified: false,
+        invalidCount: 3
+      })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(verify.isDateISOString(delay), 'to be', true)
@@ -80,7 +92,13 @@ describe('User DAO unit test', () => {
     })
 
     it('rate limit brute forcing of correct code', async () => {
-      dynamo.get.resolves({ keyId, op, code: code1, verified: false, invalidCount: 3 })
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code1,
+        verified: false,
+        invalidCount: 3
+      })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(verify.isDateISOString(delay), 'to be', true)
@@ -92,7 +110,14 @@ describe('User DAO unit test', () => {
     })
 
     it('reset rate limit after time delay is over', async () => {
-      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 3, firstInvalid: '2020-06-01T03:33:47.980Z' })
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code2,
+        verified: false,
+        invalidCount: 3,
+        firstInvalid: '2020-06-01T03:33:47.980Z'
+      })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(delay, 'to be', null)
@@ -104,7 +129,12 @@ describe('User DAO unit test', () => {
     })
 
     it('not verify a user with incorrect keyId', async () => {
-      dynamo.get.resolves({ keyId: 'wrong-id', op, code: code1, verified: false })
+      dynamo.get.resolves({
+        keyId: 'wrong-id',
+        op,
+        code: code1,
+        verified: false
+      })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(delay, 'to be', undefined)
@@ -112,7 +142,12 @@ describe('User DAO unit test', () => {
     })
 
     it('not verify a user with incorrect op', async () => {
-      dynamo.get.resolves({ keyId, op: 'remove', code: code1, verified: false })
+      dynamo.get.resolves({
+        keyId,
+        op: 'remove',
+        code: code1,
+        verified: false
+      })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(delay, 'to be', undefined)
@@ -125,13 +160,24 @@ describe('User DAO unit test', () => {
     })
 
     it('fail on dynamo put error', async () => {
-      dynamo.get.resolves({ keyId, op, code: code1, verified: false })
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code1,
+        verified: false
+      })
       dynamo.put.rejects(new Error('boom'))
       await expect(userDao.verify({ phone, keyId, op, code: code1 }), 'to be rejected with', /boom/)
     })
 
     it('verify a user with correct code', async () => {
-      dynamo.get.resolves({ keyId, op, code: code1, verified: false, invalidCount: 1 })
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code1,
+        verified: false,
+        invalidCount: 1
+      })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user.verified, 'to be', true)
       expect(user.code, 'not to be', code1)
