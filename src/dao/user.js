@@ -22,6 +22,7 @@ const {
  *   id: '6Ec52IZrNB+te2YRdpIqVet4zzziz1ypu/iGyPF6DhA=', // hash of phone or email
  *   type: 'phone', // or 'email'
  *   keyId: '550e8400-e29b-11d4-a716-446655440000' // reference of the encryption key
+ *   op: 'read', // the operation which needs to be verified with a code
  *   code: '123456', // random 6 char code used to prove ownership
  *   verified: true // if the user ID has been verified
  * }
