@@ -133,6 +133,7 @@ exports.setNewCode = async ({ phone, keyId, op }) => {
   }
   user.op = op
   user.code = await generateCode()
+  _resetRateLimit(user)
   await dynamo.put(TABLE, user)
   return user.code
 }

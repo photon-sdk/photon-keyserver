@@ -222,6 +222,14 @@ describe('User DAO unit test', () => {
       const code = await userDao.setNewCode({ phone, keyId, op })
       expect(code, 'to match', /^\d{6}$/)
       expect(dynamo.put.callCount, 'to equal', 1)
+      expect(dynamo.put.calledWithMatch(sinon.match.any, {
+        keyId,
+        op,
+        code,
+        verified: true,
+        firstInvalid: null,
+        invalidCount: 0
+      }), 'to be ok')
     })
   })
 
