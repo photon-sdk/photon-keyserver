@@ -67,14 +67,26 @@ describe('User DAO unit test', () => {
       }), 'to be ok')
     })
 
-    it('rate limit brute forcing of code', async () => {
-      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 2 })
+    it('rate limit brute forcing of incorrect code', async () => {
+      dynamo.get.resolves({ keyId, op, code: code2, verified: false, invalidCount: 3 })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(verify.isDateISOString(delay), 'to be', true)
       expect(dynamo.put.callCount, 'to equal', 1)
       expect(dynamo.put.calledWithMatch(sinon.match.any, {
-        invalidCount: 3,
+        invalidCount: 4,
+        firstInvalid: sinon.match.string
+      }), 'to be ok')
+    })
+
+    it('rate limit brute forcing of correct code', async () => {
+      dynamo.get.resolves({ keyId, op, code: code1, verified: false, invalidCount: 3 })
+      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
+      expect(user, 'to be', null)
+      expect(verify.isDateISOString(delay), 'to be', true)
+      expect(dynamo.put.callCount, 'to equal', 1)
+      expect(dynamo.put.calledWithMatch(sinon.match.any, {
+        invalidCount: 4,
         firstInvalid: sinon.match.string
       }), 'to be ok')
     })
@@ -119,12 +131,16 @@ describe('User DAO unit test', () => {
     })
 
     it('verify a user with correct code', async () => {
-      dynamo.get.resolves({ keyId, op, code: code1, verified: false })
+      dynamo.get.resolves({ keyId, op, code: code1, verified: false, invalidCount: 1 })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user.verified, 'to be', true)
       expect(user.code, 'not to be', code1)
       expect(delay, 'to be', undefined)
-      expect(dynamo.put.callCount, 'to equal', 1)
+      expect(dynamo.put.callCount, 'to equal', 2)
+      expect(dynamo.put.calledWithMatch(sinon.match.any, {
+        invalidCount: 0,
+        firstInvalid: null
+      }), 'to be ok')
     })
   })
 
