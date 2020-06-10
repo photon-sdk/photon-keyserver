@@ -61,14 +61,14 @@ describe('User DAO unit test', () => {
         op,
         code: code2,
         verified: false,
-        invalidCount: 2
+        invalidCount: 9
       })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(delay, 'to be', null)
       expect(dynamo.put.callCount, 'to equal', 1)
       expect(dynamo.put.calledWithMatch(sinon.match.any, {
-        invalidCount: 3,
+        invalidCount: 10,
         firstInvalid: sinon.match.string
       }), 'to be ok')
     })
@@ -79,14 +79,14 @@ describe('User DAO unit test', () => {
         op,
         code: code2,
         verified: false,
-        invalidCount: 3
+        invalidCount: 10
       })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(verify.isDateISOString(delay), 'to be', true)
       expect(dynamo.put.callCount, 'to equal', 1)
       expect(dynamo.put.calledWithMatch(sinon.match.any, {
-        invalidCount: 4,
+        invalidCount: 11,
         firstInvalid: sinon.match.string
       }), 'to be ok')
     })
@@ -97,14 +97,14 @@ describe('User DAO unit test', () => {
         op,
         code: code1,
         verified: false,
-        invalidCount: 3
+        invalidCount: 10
       })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
       expect(user, 'to be', null)
       expect(verify.isDateISOString(delay), 'to be', true)
       expect(dynamo.put.callCount, 'to equal', 1)
       expect(dynamo.put.calledWithMatch(sinon.match.any, {
-        invalidCount: 4,
+        invalidCount: 11,
         firstInvalid: sinon.match.string
       }), 'to be ok')
     })
@@ -115,7 +115,7 @@ describe('User DAO unit test', () => {
         op,
         code: code2,
         verified: false,
-        invalidCount: 3,
+        invalidCount: 10,
         firstInvalid: '2020-06-01T03:33:47.980Z'
       })
       const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
