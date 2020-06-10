@@ -60,8 +60,8 @@ exports.verify = async ({ phone, keyId, code, op }) => {
   if (!user || user.keyId !== keyId || user.op !== op) {
     return { user: null }
   }
-  if (user.code !== code) {
-    const delay = await _checkRateLimit(user)
+  const delay = await _checkRateLimit(user)
+  if (delay || user.code !== code) {
     return { user: null, delay }
   }
   await _markVerified(user)
@@ -87,7 +87,7 @@ const _checkRateLimit = async user => {
   return rateLimit ? delay.toISOString() : null
 }
 
-const _isRateLimit = invalidCount => invalidCount >= 3 // until rate limit is hit
+const _isRateLimit = invalidCount => invalidCount > 3 // until rate limit is hit
 
 const _delayUntil = firstInvalid => addDays(firstInvalid, 7) // days until limit is lifted
 
