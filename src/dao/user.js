@@ -55,8 +55,7 @@ exports.verify = async ({ phone, keyId, code, op }) => {
   if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
     throw new Error('Invalid args')
   }
-  const id = await _hashId(phone)
-  const user = await dynamo.get(TABLE, { id })
+  const user = await this.get({ phone })
   if (!user || user.keyId !== keyId || user.op !== op) {
     return { user: null }
   }
@@ -126,8 +125,7 @@ exports.setNewCode = async ({ phone, keyId, op }) => {
   if (!isPhone(phone) || !isId(keyId) || !isOp(op)) {
     throw new Error('Invalid args')
   }
-  const id = await _hashId(phone)
-  const user = await dynamo.get(TABLE, { id })
+  const user = await this.get({ phone })
   if (!user || !user.verified || user.keyId !== keyId) {
     return null
   }
