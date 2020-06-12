@@ -225,12 +225,49 @@ describe('User DAO unit test', () => {
         verified: false,
         invalidCount: 1
       })
-      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1 })
+      const { user, delay } = await userDao.verify({
+        phone,
+        keyId,
+        op,
+        code: code1,
+        pin: undefined
+      })
       expect(user.verified, 'to be', true)
       expect(user.code, 'not to be', code1)
       expect(delay, 'to be', undefined)
       expect(dynamo.put.callCount, 'to equal', 2)
       sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
+        pin: null,
+        verified: true,
+        invalidCount: 0,
+        firstInvalid: null
+      })
+    })
+
+    it('verify a user with correct code (empty pin)', async () => {
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code1,
+        pin: null,
+        salt,
+        verified: false,
+        invalidCount: 1
+      })
+      const { user, delay } = await userDao.verify({
+        phone,
+        keyId,
+        op,
+        code: code1,
+        pin: ''
+      })
+      expect(user.verified, 'to be', true)
+      expect(user.code, 'not to be', code1)
+      expect(delay, 'to be', undefined)
+      expect(dynamo.put.callCount, 'to equal', 2)
+      sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
+        pin: null,
+        verified: true,
         invalidCount: 0,
         firstInvalid: null
       })
@@ -246,20 +283,27 @@ describe('User DAO unit test', () => {
         verified: false,
         invalidCount: 1
       })
-      const { user, delay } = await userDao.verify({ phone, keyId, op, code: code1, pin })
+      const { user, delay } = await userDao.verify({
+        phone,
+        keyId,
+        op,
+        code: code1,
+        pin
+      })
       expect(user.verified, 'to be', true)
       expect(user.code, 'not to be', code1)
       expect(delay, 'to be', undefined)
       expect(dynamo.put.callCount, 'to equal', 2)
       sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
         op: null,
+        pin: '5nTbjDe/u9TjtpPZ0O7rgMQ2BRhmhzqJqoUqX/d0pyk=',
         verified: true,
         invalidCount: 0,
         firstInvalid: null
       })
     })
 
-    it('verify a user with correct code (with newPin)', async () => {
+    it('change pin for existing user (with newPin)', async () => {
       dynamo.get.resolves({
         keyId,
         op,
@@ -283,6 +327,37 @@ describe('User DAO unit test', () => {
       sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
         op: null,
         pin: '5nTbjDe/u9TjtpPZ0O7rgMQ2BRhmhzqJqoUqX/d0pyk=',
+        verified: true,
+        invalidCount: 0,
+        firstInvalid: null
+      })
+    })
+
+    it('remove pin by passing empty string (empty newPin)', async () => {
+      dynamo.get.resolves({
+        keyId,
+        op,
+        code: code1,
+        pin: '5nTbjDe/u9TjtpPZ0O7rgMQ2BRhmhzqJqoUqX/d0pyk=',
+        salt,
+        verified: false,
+        invalidCount: 1
+      })
+      const { user, delay } = await userDao.verify({
+        phone,
+        keyId,
+        op,
+        code: code1,
+        pin,
+        newPin: ''
+      })
+      expect(user.verified, 'to be', true)
+      expect(user.code, 'not to be', code1)
+      expect(delay, 'to be', undefined)
+      expect(dynamo.put.callCount, 'to equal', 2)
+      sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
+        op: null,
+        pin: null,
         verified: true,
         invalidCount: 0,
         firstInvalid: null
