@@ -30,7 +30,7 @@ exports.isId = id => {
 }
 
 exports.isPin = pin => {
-  return pin ? /^.{4,}$/.test(pin) : false
+  return pin ? /^.{4,256}$/.test(pin) : false
 }
 
 exports.isDateISOString = str => {

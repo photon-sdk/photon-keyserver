@@ -151,6 +151,11 @@ describe('Verify Lib unit test', () => {
       expect(verify.isPin('1234\n'), 'to be', false)
     })
 
+    it('returns false if pin is too long', () => {
+      const pin = new Array(257).fill('0').join('')
+      expect(verify.isPin(pin), 'to be', false)
+    })
+
     it('returns false for null', () => {
       expect(verify.isPin(null), 'to be', false)
     })
