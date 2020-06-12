@@ -42,7 +42,7 @@ exports.create = async ({ phone, keyId, pin }) => {
   const code = await generateCode()
   const id = await _hashId(phone)
   const salt = await generateSalt()
-  pin = pin ? await createHash(pin, salt) : null
+  pin = await _hashPin(pin, salt)
   await dynamo.put(TABLE, {
     id,
     type: 'phone',
@@ -74,12 +74,12 @@ exports.verify = async ({ phone, keyId, code, op, pin, newPin }) => {
     return { user: null }
   }
   const delay = await _checkRateLimit(user)
-  pin = pin ? await createHash(pin, user.salt) : null
+  pin = await _hashPin(pin, user.salt)
   if (delay || user.code !== code || user.pin !== pin) {
     return { user: null, delay }
   }
-  if (newPin) {
-    user.pin = await createHash(newPin, user.salt)
+  if (typeof newPin === 'string') {
+    user.pin = await _hashPin(newPin, user.salt)
   }
   await _markVerified(user)
   return { user }
@@ -190,4 +190,8 @@ const _getSalt = async () => {
 const _hashId = async secret => {
   const salt = await _getSalt()
   return createHash(secret, salt)
+}
+
+const _hashPin = async (pin, salt) => {
+  return pin ? createHash(pin, salt) : null
 }
