@@ -130,6 +130,45 @@ describe('Verify Lib unit test', () => {
     })
   })
 
+  describe('isPin', () => {
+    it('returns true for a four digits', () => {
+      expect(verify.isPin('1234'), 'to be', true)
+    })
+
+    it('returns true for a password', () => {
+      expect(verify.isPin('#!Pa$$wörD'), 'to be', true)
+    })
+
+    it('returns true for a passphrase', () => {
+      expect(verify.isPin('this is a passphrase'), 'to be', true)
+    })
+
+    it('returns false for only three digits', () => {
+      expect(verify.isPin('123'), 'to be', false)
+    })
+
+    it('returns false for a new line', () => {
+      expect(verify.isPin('1234\n'), 'to be', false)
+    })
+
+    it('returns false if pin is too long', () => {
+      const pin = new Array(257).fill('0').join('')
+      expect(verify.isPin(pin), 'to be', false)
+    })
+
+    it('returns false for null', () => {
+      expect(verify.isPin(null), 'to be', false)
+    })
+
+    it('returns false for undefined', () => {
+      expect(verify.isPin(undefined), 'to be', false)
+    })
+
+    it('returns false for empty string', () => {
+      expect(verify.isPin(''), 'to be', false)
+    })
+  })
+
   describe('isDateISOString', () => {
     it('returns true for a valid date string', () => {
       expect(verify.isDateISOString('2020-06-09T03:33:47.980Z'), 'to be', true)

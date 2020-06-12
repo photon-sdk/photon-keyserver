@@ -11,6 +11,7 @@ const {
   isPhone,
   isCode,
   isId,
+  isPin,
   addDays,
   generateCode,
   createHash,
@@ -25,6 +26,8 @@ const {
  *   keyId: '550e8400-e29b-11d4-a716-446655440000' // reference of the encryption key
  *   op: 'read', // the operation which needs to be verified with a code
  *   code: '123456', // random 6 char code used to prove ownership
+ *   pin: 'sxeKxQtdiVDM7y0d1sPE2IFTsJ8XuURrDVOfZ8F7zYg=', // hash of the pin (optional)
+ *   salt: 'D5gbqhTTz49Q08T6Y50Cy8ea4fSvcaFzJ2eJOgxX4SA=', // used in pin hashing
  *   verified: true, // if the user ID has been verified
  *   firstInvalid: '2020-06-09T03:33:47.980Z', // time of first failed verify request
  *   invalidCount: 3, // the number of failed verify requests (including firstInvalid)
@@ -32,18 +35,22 @@ const {
  */
 const TABLE = process.env.DYNAMODB_TABLE_USER
 
-exports.create = async ({ phone, keyId }) => {
-  if (!isPhone(phone) || !isId(keyId)) {
+exports.create = async ({ phone, keyId, pin }) => {
+  if (!isPhone(phone) || !isId(keyId) || (pin && !isPin(pin))) {
     throw new Error('Invalid args')
   }
   const code = await generateCode()
   const id = await _hashId(phone)
+  const salt = await generateSalt()
+  pin = pin ? await createHash(pin, salt) : null
   await dynamo.put(TABLE, {
     id,
     type: 'phone',
     keyId,
     op: ops.VERIFY,
     code,
+    pin,
+    salt,
     verified: false,
     firstInvalid: null,
     invalidCount: 0
@@ -51,18 +58,28 @@ exports.create = async ({ phone, keyId }) => {
   return code
 }
 
-exports.verify = async ({ phone, keyId, code, op }) => {
-  if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
+exports.verify = async ({ phone, keyId, code, op, pin, newPin }) => {
+  if (
+    !isPhone(phone) ||
+    !isId(keyId) ||
+    !isCode(code) ||
+    !isOp(op) ||
+    (pin && !isPin(pin)) ||
+    (newPin && !isPin(newPin))
+  ) {
     throw new Error('Invalid args')
   }
-  const id = await _hashId(phone)
-  const user = await dynamo.get(TABLE, { id })
+  const user = await this.get({ phone })
   if (!user || user.keyId !== keyId || user.op !== op) {
     return { user: null }
   }
   const delay = await _checkRateLimit(user)
-  if (delay || user.code !== code) {
+  pin = pin ? await createHash(pin, user.salt) : null
+  if (delay || user.code !== code || user.pin !== pin) {
     return { user: null, delay }
+  }
+  if (newPin) {
+    user.pin = await createHash(newPin, user.salt)
   }
   await _markVerified(user)
   return { user }
@@ -126,8 +143,7 @@ exports.setNewCode = async ({ phone, keyId, op }) => {
   if (!isPhone(phone) || !isId(keyId) || !isOp(op)) {
     throw new Error('Invalid args')
   }
-  const id = await _hashId(phone)
-  const user = await dynamo.get(TABLE, { id })
+  const user = await this.get({ phone })
   if (!user || !user.verified || user.keyId !== keyId) {
     return null
   }
