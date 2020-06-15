@@ -5,8 +5,9 @@
 'use strict'
 
 const { v4: uuid } = require('uuid')
+const { isId } = require('../lib/verify')
+const { generateKey } = require('../lib/crypto')
 const dynamo = require('../service/dynamodb')
-const { isId, generateKey } = require('../lib/verify')
 
 /**
  * Database documents have the format:
