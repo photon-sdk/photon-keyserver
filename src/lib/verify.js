@@ -1,11 +1,8 @@
 /**
- * @fileOverview verification and security critical functions
+ * @fileOverview verification functions
  */
 
 'use strict'
-
-const crypto = require('crypto')
-const { promisify } = require('util')
 
 exports.ops = Object.freeze({
   READ: 'read',
@@ -44,26 +41,4 @@ exports.addDays = (date, days) => {
   const result = new Date(date)
   result.setDate(result.getDate() + days)
   return result
-}
-
-exports.generateKey = async () => {
-  const buf = await promisify(crypto.randomBytes)(32)
-  return buf.toString('base64')
-}
-
-exports.generateCode = async () => {
-  const buf = await promisify(crypto.randomBytes)(4)
-  const str = parseInt(buf.toString('hex'), 16).toString()
-  return str.substr(str.length - 6).padStart(6, '0')
-}
-
-exports.generateSalt = () => this.generateKey()
-
-exports.createHash = async (secret, salt) => {
-  salt = Buffer.from(salt, 'base64')
-  if (!secret || salt.length !== 32) {
-    throw new Error('Invalid args')
-  }
-  const buf = await promisify(crypto.scrypt)(secret, salt, 32)
-  return buf.toString('base64')
 }
