@@ -33,12 +33,3 @@ exports.isPin = pin => {
 exports.isDateISOString = str => {
   return /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)$/.test(str)
 }
-
-exports.addDays = (date, days) => {
-  if (!this.isDateISOString(date) || !Number.isInteger(days)) {
-    throw new Error('Invalid args')
-  }
-  const result = new Date(date)
-  result.setDate(result.getDate() + days)
-  return result
-}

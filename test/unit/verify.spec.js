@@ -178,15 +178,4 @@ describe('Verify Lib unit test', () => {
       expect(verify.isDateISOString(''), 'to be', false)
     })
   })
-
-  describe('addDays', () => {
-    it('add days to ISO date string', () => {
-      const date = verify.addDays('2020-06-09T03:33:47.980Z', 2)
-      expect(date.toISOString(), 'to be', '2020-06-11T03:33:47.980Z')
-    })
-
-    it('fail on invalid input', () => {
-      expect(verify.addDays.bind(), 'to throw', /Invalid/)
-    })
-  })
 })
