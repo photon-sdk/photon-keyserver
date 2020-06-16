@@ -5,7 +5,6 @@
 'use strict'
 
 const dynamo = require('../service/dynamodb')
-const { checkRateLimit, resetRateLimit } = require('../lib/rate-limit')
 const { generateCode, createHash, generateSalt } = require('../lib/crypto')
 const { ops, isOp, isPhone, isCode, isId, isPin } = require('../lib/verify')
 
@@ -17,8 +16,6 @@ const { ops, isOp, isPhone, isCode, isId, isPin } = require('../lib/verify')
  *   keyId: '550e8400-e29b-11d4-a716-446655440000' // reference of the encryption key
  *   op: 'read', // the operation which needs to be verified with a code
  *   code: '123456', // random 6 char code used to prove ownership
- *   pin: 'sxeKxQtdiVDM7y0d1sPE2IFTsJ8XuURrDVOfZ8F7zYg=', // hash of the pin (optional)
- *   salt: 'D5gbqhTTz49Q08T6Y50Cy8ea4fSvcaFzJ2eJOgxX4SA=', // used in pin hashing
  *   verified: true, // if the user ID has been verified
  * }
  */
@@ -30,20 +27,14 @@ exports.create = async ({ phone, keyId, pin }) => {
   }
   const code = await generateCode()
   const id = await _hashId(phone)
-  const salt = await generateSalt()
-  pin = await _hashPin(pin, salt)
-  const user = {
+  await dynamo.put(TABLE, {
     id,
     type: 'phone',
     keyId,
     op: ops.VERIFY,
     code,
-    pin,
-    salt,
     verified: false
-  }
-  resetRateLimit(user)
-  await dynamo.put(TABLE, user)
+  })
   return code
 }
 
@@ -62,25 +53,15 @@ exports.verify = async ({ phone, keyId, code, op, pin, newPin }) => {
   if (!user || user.keyId !== keyId || user.op !== op) {
     return { user: null }
   }
-  const delay = await checkRateLimit(user)
   await dynamo.put(TABLE, user)
-  pin = await _hashPin(pin, user.salt)
-  if (delay || user.code !== code || user.pin !== pin) {
-    return { user: null, delay }
+  if (user.code !== code) {
+    return { user: null }
   }
-  if (typeof newPin === 'string') {
-    user.pin = await _hashPin(newPin, user.salt)
-  }
-  await _markVerified(user)
-  return { user }
-}
-
-const _markVerified = async user => {
   user.op = null
   user.verified = true
   user.code = await generateCode()
-  resetRateLimit(user)
   await dynamo.put(TABLE, user)
+  return user
 }
 
 exports.get = async ({ phone }) => {
@@ -150,8 +131,4 @@ const _getSalt = async () => {
 const _hashId = async secret => {
   const salt = await _getSalt()
   return createHash(secret, salt)
-}
-
-const _hashPin = async (pin, salt) => {
-  return pin ? createHash(pin, salt) : null
 }
