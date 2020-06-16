@@ -4,9 +4,9 @@
 
 'use strict'
 
+const { ops } = require('../lib/verify')
 const dynamo = require('../service/dynamodb')
 const { generateCode, createHash, generateSalt } = require('../lib/crypto')
-const { ops, isOp, isPhone, isCode, isId, isPin } = require('../lib/verify')
 
 /**
  * Database documents have the format:
@@ -21,10 +21,7 @@ const { ops, isOp, isPhone, isCode, isId, isPin } = require('../lib/verify')
  */
 const TABLE = process.env.DYNAMODB_TABLE_USER
 
-exports.create = async ({ phone, keyId, pin }) => {
-  if (!isPhone(phone) || !isId(keyId) || (pin && !isPin(pin))) {
-    throw new Error('Invalid args')
-  }
+exports.create = async ({ phone, keyId }) => {
   const code = await generateCode()
   const id = await _hashId(phone)
   await dynamo.put(TABLE, {
@@ -38,17 +35,7 @@ exports.create = async ({ phone, keyId, pin }) => {
   return code
 }
 
-exports.verify = async ({ phone, keyId, code, op, pin, newPin }) => {
-  if (
-    !isPhone(phone) ||
-    !isId(keyId) ||
-    !isCode(code) ||
-    !isOp(op) ||
-    (pin && !isPin(pin)) ||
-    (newPin && !isPin(newPin))
-  ) {
-    throw new Error('Invalid args')
-  }
+exports.verify = async ({ phone, keyId, code, op }) => {
   const user = await this.get({ phone })
   if (!user || user.keyId !== keyId || user.op !== op) {
     return { user: null }
@@ -65,9 +52,6 @@ exports.verify = async ({ phone, keyId, code, op, pin, newPin }) => {
 }
 
 exports.get = async ({ phone }) => {
-  if (!isPhone(phone)) {
-    throw new Error('Invalid args')
-  }
   const id = await _hashId(phone)
   return dynamo.get(TABLE, { id })
 }
@@ -81,9 +65,6 @@ exports.getVerified = async ({ phone }) => {
 }
 
 exports.setNewCode = async ({ phone, keyId, op }) => {
-  if (!isPhone(phone) || !isId(keyId) || !isOp(op)) {
-    throw new Error('Invalid args')
-  }
   const user = await this.get({ phone })
   if (!user || !user.verified || user.keyId !== keyId) {
     return null
@@ -95,9 +76,6 @@ exports.setNewCode = async ({ phone, keyId, op }) => {
 }
 
 exports.remove = async ({ phone, keyId }) => {
-  if (!isPhone(phone) || !isId(keyId)) {
-    throw new Error('Invalid args')
-  }
   const id = await _hashId(phone)
   const user = await dynamo.get(TABLE, { id })
   if (!user || user.keyId !== keyId) {
