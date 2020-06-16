@@ -43,12 +43,30 @@ functions:
      - http:
          path: /v1/key/{keyId}
          method: get
-  verifyKey:
-    handler: handler.verifyKey
+  changePin:
+    handler: handler.changePin
     events:
      - http:
          path: /v1/key/{keyId}
          method: put
+  createUser:
+    handler: handler.createUser
+    events:
+     - http:
+         path: /v1/key/{keyId}/user
+         method: post
+  verifyUser:
+    handler: handler.verifyUser
+    events:
+     - http:
+         path: /v1/key/{keyId}/user/{userId}
+         method: put
+  removeUser:
+    handler: handler.removeUser
+    events:
+     - http:
+         path: /v1/key/{keyId}
+         method: delete
 
 resources:
   Resources:
