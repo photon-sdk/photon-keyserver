@@ -37,18 +37,14 @@ exports.create = async ({ phone, keyId }) => {
 
 exports.verify = async ({ phone, keyId, code, op }) => {
   const user = await this.get({ phone })
-  if (!user || user.keyId !== keyId || user.op !== op) {
-    return { user: null }
-  }
-  await dynamo.put(TABLE, user)
-  if (user.code !== code) {
-    return { user: null }
+  if (!user || user.keyId !== keyId || user.code !== code || user.op !== op) {
+    return false
   }
   user.op = null
   user.verified = true
   user.code = await generateCode()
   await dynamo.put(TABLE, user)
-  return user
+  return true
 }
 
 exports.get = async ({ phone }) => {
