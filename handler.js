@@ -105,19 +105,12 @@ exports.createUser = async (event) => {
 exports.verifyUser = async (event) => {
   try {
     const { keyId } = path(event)
-    const { phone, code, op, pin } = body(event)
-    if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op) || !isPin(pin)) {
+    const { phone, code, op = ops.VERIFY } = query(event)
+    if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
       return error(400, 'Invalid request')
     }
-    const { key, delay } = await keyDao.get({ id: keyId, pin })
-    if (delay) {
-      return response(429, { message: 'Rate limit until', delay })
-    }
-    if (!key) {
-      return error(404, 'Invalid params')
-    }
-    const user = await userDao.verify({ phone, keyId, code, op: ops.VERIFY })
-    if (!user) {
+    const success = await userDao.verify({ phone, keyId, code, op })
+    if (!success) {
       return error(404, 'Invalid params')
     }
     return response(200, 'Success')

@@ -60,7 +60,7 @@ functions:
     events:
      - http:
          path: /v1/key/{keyId}/user/{userId}
-         method: put
+         method: get
   removeUser:
     handler: handler.removeUser
     events:
