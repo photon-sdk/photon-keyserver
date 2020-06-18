@@ -60,13 +60,13 @@ functions:
     events:
      - http:
          path: /v1/key/{keyId}/user/{userId}
-         method: get
+         method: put
   resetPin:
     handler: handler.resetPin
     events:
      - http:
-         path: /v1/key/{keyId}/user/{userId}
-         method: put
+         path: /v1/key/{keyId}/user/{userId}/reset
+         method: get
   removeUser:
     handler: handler.removeUser
     events:
