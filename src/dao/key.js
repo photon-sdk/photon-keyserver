@@ -6,8 +6,8 @@
 
 const { v4: uuid } = require('uuid')
 const dynamo = require('../service/dynamodb')
-const { checkRateLimit, resetRateLimit } = require('../lib/rate-limit')
 const { generateKey, generateSalt, createHash } = require('../lib/crypto')
+const { checkRateLimit, resetRateLimit, checkTimeLock, resetTimeLock } = require('../lib/delay')
 
 /**
  * Database documents have the format:
@@ -31,6 +31,7 @@ exports.create = async ({ pin }) => {
     pin,
     salt
   }
+  resetTimeLock(key)
   resetRateLimit(key)
   await dynamo.put(TABLE, key)
   return id
@@ -47,6 +48,16 @@ exports.get = async ({ id, pin }) => {
 
 exports.changePin = async ({ id, pin, newPin }) => {
   const { key, delay } = await this._getKeyRateLimited({ id, pin })
+  if (!key) {
+    return { success: false, delay }
+  }
+  key.pin = await _hashPin(newPin, key.salt)
+  await dynamo.put(TABLE, key)
+  return { success: true }
+}
+
+exports.resetPin = async ({ id, newPin }) => {
+  const { key, delay } = await this._getKeyTimeLocked({ id })
   if (!key) {
     return { success: false, delay }
   }
@@ -73,13 +84,27 @@ exports._getKeyRateLimited = async ({ id, pin }) => {
   if (!key) {
     return { key: null }
   }
-  const delay = await checkRateLimit(key)
+  const delay = checkRateLimit(key)
   await dynamo.put(TABLE, key)
   pin = await _hashPin(pin, key.salt)
   if (delay || key.pin !== pin) {
     return { key: null, delay }
   }
   resetRateLimit(key)
+  return { key }
+}
+
+exports._getKeyTimeLocked = async ({ id }) => {
+  const key = await dynamo.get(TABLE, { id })
+  if (!key) {
+    return { key: null }
+  }
+  const delay = checkTimeLock(key)
+  await dynamo.put(TABLE, key)
+  if (delay) {
+    return { key: null, delay }
+  }
+  resetTimeLock(key)
   return { key }
 }
 
