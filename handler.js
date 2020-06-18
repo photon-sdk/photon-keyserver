@@ -55,7 +55,7 @@ exports.getKey = async (event) => {
 exports.changePin = async (event) => {
   try {
     const { keyId } = path(event)
-    const { pin, newPin } = query(event)
+    const { pin, newPin } = body(event)
     if (!isId(keyId) || !isPin(pin) || !isPin(newPin)) {
       return error(400, 'Invalid request')
     }
@@ -104,14 +104,26 @@ exports.createUser = async (event) => {
 
 exports.verifyUser = async (event) => {
   try {
-    const { keyId } = path(event)
-    const { phone, code, op = ops.VERIFY } = query(event)
+    const { keyId, userId: phone } = path(event)
+    const { code, op, newPin } = query(event)
     if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
       return error(400, 'Invalid request')
     }
-    const success = await userDao.verify({ phone, keyId, code, op })
+    const { success, delay } = await userDao.verify({ phone, keyId, code, op })
+    if (delay) {
+      return response(429, { message: 'Rate limit until', delay })
+    }
     if (!success) {
       return error(404, 'Invalid params')
+    }
+    if (op === ops.RESET_PIN) {
+      const { success, delay } = await keyDao.resetPin({ id: keyId, newPin })
+      if (delay) {
+        return response(423, { message: 'Time locked until', delay })
+      }
+      if (!success) {
+        return error(404, 'Invalid params')
+      }
     }
     return response(200, 'Success')
   } catch (err) {
@@ -119,10 +131,27 @@ exports.verifyUser = async (event) => {
   }
 }
 
+exports.resetPin = async (event) => {
+  try {
+    const { keyId, userId: phone } = path(event)
+    if (!isPhone(phone) || !isId(keyId)) {
+      return error(400, 'Invalid request')
+    }
+    const code = await userDao.setNewCode({ phone, keyId, op: ops.RESET_PIN })
+    if (!code) {
+      return error(404, 'Invalid params')
+    }
+    await twilio.send({ phone, code })
+    return response(200, 'Success')
+  } catch (err) {
+    return error(500, 'Error resetting user pin', err)
+  }
+}
+
 exports.removeUser = async (event) => {
   try {
-    const { keyId } = path(event)
-    const { phone, pin } = body(event)
+    const { keyId, userId: phone } = path(event)
+    const { pin } = body(event)
     if (!isPhone(phone) || !isId(keyId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }

@@ -5,6 +5,7 @@
 'use strict'
 
 const { v4: uuid } = require('uuid')
+const { isPin } = require('../lib/verify')
 const dynamo = require('../service/dynamodb')
 const { generateKey, generateSalt, createHash } = require('../lib/crypto')
 const { checkRateLimit, resetRateLimit, checkTimeLock, resetTimeLock } = require('../lib/delay')
@@ -60,6 +61,9 @@ exports.resetPin = async ({ id, newPin }) => {
   const { key, delay } = await this._getKeyTimeLocked({ id })
   if (!key) {
     return { success: false, delay }
+  }
+  if (!isPin(newPin)) {
+    return { success: false }
   }
   key.pin = await _hashPin(newPin, key.salt)
   await dynamo.put(TABLE, key)

@@ -61,11 +61,17 @@ functions:
      - http:
          path: /v1/key/{keyId}/user/{userId}
          method: get
+  resetPin:
+    handler: handler.resetPin
+    events:
+     - http:
+         path: /v1/key/{keyId}/user/{userId}
+         method: put
   removeUser:
     handler: handler.removeUser
     events:
      - http:
-         path: /v1/key/{keyId}
+         path: /v1/key/{keyId}/user/{userId}
          method: delete
 
 resources:
