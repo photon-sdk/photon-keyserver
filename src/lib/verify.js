@@ -5,9 +5,8 @@
 'use strict'
 
 exports.ops = Object.freeze({
-  READ: 'read',
   VERIFY: 'verify',
-  REMOVE: 'remove'
+  RESET_PIN: 'reset-pin'
 })
 
 exports.isOp = op => {
