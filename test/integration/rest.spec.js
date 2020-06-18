@@ -16,7 +16,6 @@ describe('REST api integration test', () => {
   let keyId
   let code1
   let code2
-  let code3
 
   before(async () => {
     dynamo.init()
