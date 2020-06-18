@@ -68,7 +68,7 @@ exports.changePin = async (event) => {
     }
     return response(200, 'Success')
   } catch (err) {
-    return error(500, 'Error reading key', err)
+    return error(500, 'Error changing pin', err)
   }
 }
 
@@ -144,7 +144,7 @@ exports.resetPin = async (event) => {
     await twilio.send({ phone, code })
     return response(200, 'Success')
   } catch (err) {
-    return error(500, 'Error resetting user pin', err)
+    return error(500, 'Error resetting pin', err)
   }
 }
 
@@ -165,6 +165,6 @@ exports.removeUser = async (event) => {
     await userDao.remove({ phone, keyId })
     return response(200, 'Success')
   } catch (err) {
-    return error(500, 'Error deleting key', err)
+    return error(500, 'Error deleting user', err)
   }
 }
