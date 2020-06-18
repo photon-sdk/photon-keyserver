@@ -19,7 +19,6 @@ const { isDateISOString } = require('../lib/verify')
 exports.resetRateLimit = doc => {
   doc.firstInvalid = null
   doc.invalidCount = 0
-  doc.lockedUntil = null
 }
 
 exports.checkRateLimit = doc => {
