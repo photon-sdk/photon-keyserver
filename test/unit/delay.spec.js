@@ -3,9 +3,9 @@
 'use strict'
 
 const expect = require('unexpected')
-const { _addDays } = require('../../src/lib/rate-limit')
+const { _addDays } = require('../../src/lib/delay')
 
-describe('Rate Limit Lib unit test', () => {
+describe('Delay Lib unit test', () => {
   describe('addDays', () => {
     it('add days to ISO date string', () => {
       const date = _addDays('2020-06-09T03:33:47.980Z', 2)
