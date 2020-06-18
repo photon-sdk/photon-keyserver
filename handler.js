@@ -8,7 +8,7 @@ const keyDao = require('./src/dao/key')
 const userDao = require('./src/dao/user')
 const twilio = require('./src/service/twilio')
 const dynamo = require('./src/service/dynamodb')
-const { path, body, query, response, error } = require('./src/lib/http')
+const { path, body, auth, response, error } = require('./src/lib/http')
 const { ops, isOp, isPhone, isCode, isId, isPin } = require('./src/lib/verify')
 
 dynamo.init()
@@ -34,7 +34,7 @@ exports.createKey = async (event) => {
 exports.getKey = async (event) => {
   try {
     const { keyId } = path(event)
-    const { pin } = body(event)
+    const pin = auth(event).pass
     if (!isId(keyId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }
@@ -105,7 +105,7 @@ exports.createUser = async (event) => {
 exports.verifyUser = async (event) => {
   try {
     const { keyId, userId: phone } = path(event)
-    const { code, op, newPin } = query(event)
+    const { code, op, newPin } = body(event)
     if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
       return error(400, 'Invalid request')
     }
@@ -151,7 +151,7 @@ exports.resetPin = async (event) => {
 exports.removeUser = async (event) => {
   try {
     const { keyId, userId: phone } = path(event)
-    const { pin } = body(event)
+    const pin = auth(event).pass
     if (!isPhone(phone) || !isId(keyId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }
