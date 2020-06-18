@@ -6,6 +6,7 @@
 
 const { ops } = require('../lib/verify')
 const dynamo = require('../service/dynamodb')
+const { checkRateLimit, resetRateLimit } = require('../lib/delay')
 const { generateCode, createHash, generateSalt } = require('../lib/crypto')
 
 /**
@@ -24,27 +25,35 @@ const TABLE = process.env.DYNAMODB_TABLE_USER
 exports.create = async ({ phone, keyId }) => {
   const code = await generateCode()
   const id = await _hashId(phone)
-  await dynamo.put(TABLE, {
+  const user = {
     id,
     type: 'phone',
     keyId,
     op: ops.VERIFY,
     code,
     verified: false
-  })
+  }
+  resetRateLimit(user)
+  await dynamo.put(TABLE, user)
   return code
 }
 
 exports.verify = async ({ phone, keyId, code, op }) => {
   const user = await this.get({ phone })
-  if (!user || user.keyId !== keyId || user.code !== code || user.op !== op) {
-    return false
+  if (!user || user.keyId !== keyId || user.op !== op) {
+    return { success: false }
+  }
+  const delay = checkRateLimit(user)
+  await dynamo.put(TABLE, user)
+  if (delay || user.code !== code) {
+    return { success: false, delay }
   }
   user.op = null
   user.verified = true
   user.code = await generateCode()
+  resetRateLimit(user)
   await dynamo.put(TABLE, user)
-  return true
+  return { success: true }
 }
 
 exports.get = async ({ phone }) => {
