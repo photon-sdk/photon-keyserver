@@ -9,7 +9,7 @@ const userDao = require('../../src/dao/user')
 const dynamo = require('../../src/service/dynamodb')
 
 describe('REST api integration test', () => {
-  const phone = '+4917512345678'
+  const userId = '+4917512345678'
   const pin1 = '1234'
   const pin2 = '5678'
   let client
@@ -120,10 +120,10 @@ describe('REST api integration test', () => {
   })
 
   describe('POST: create new user', () => {
-    it('return 400 for invalid phone number', async () => {
+    it('return 400 for invalid user id', async () => {
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          phone: 'invalid',
+          userId: 'invalid',
           pin: pin2
         }
       })
@@ -133,7 +133,7 @@ describe('REST api integration test', () => {
     it('old pin should not work anymore', async () => {
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          phone,
+          userId,
           pin: pin1
         }
       })
@@ -143,7 +143,7 @@ describe('REST api integration test', () => {
     it('should create new user', async () => {
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          phone,
+          userId,
           pin: pin2
         }
       })
@@ -151,14 +151,14 @@ describe('REST api integration test', () => {
     })
 
     after(async () => {
-      code1 = (await userDao.get({ phone })).code
+      code1 = (await userDao.get({ userId })).code
       expect(code1, 'to be ok')
     })
   })
 
   describe('PUT: verify new user', () => {
     it('return 400 for invalid op', async () => {
-      const response = await client.put(`/v1/key/${keyId}/user/${phone}`, {
+      const response = await client.put(`/v1/key/${keyId}/user/${userId}`, {
         body: {
           code: code1,
           op: 'invalid-op'
@@ -168,7 +168,7 @@ describe('REST api integration test', () => {
     })
 
     it('verify user with correct op', async () => {
-      const response = await client.put(`/v1/key/${keyId}/user/${phone}`, {
+      const response = await client.put(`/v1/key/${keyId}/user/${userId}`, {
         body: {
           code: code1,
           op: 'verify'
@@ -182,7 +182,7 @@ describe('REST api integration test', () => {
     it('should return 409 if user id already exists', async () => {
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          phone,
+          userId,
           pin: pin2
         }
       })
@@ -196,7 +196,7 @@ describe('REST api integration test', () => {
     })
 
     it('return 400 for invalid key id', async () => {
-      const response = await client.get(`/v1/key/invalid-key-id/user/${phone}/reset`)
+      const response = await client.get(`/v1/key/invalid-key-id/user/${userId}/reset`)
       expect(response.status, 'to be', 400)
     })
 
@@ -206,12 +206,12 @@ describe('REST api integration test', () => {
     })
 
     it('should request reset pin', async () => {
-      const response = await client.get(`/v1/key/${keyId}/user/${phone}/reset`)
+      const response = await client.get(`/v1/key/${keyId}/user/${userId}/reset`)
       expect(response.status, 'to be', 200)
     })
 
     after(async () => {
-      code2 = (await userDao.get({ phone })).code
+      code2 = (await userDao.get({ userId })).code
       expect(code2, 'to be ok')
       expect(code2, 'not to be', code1)
     })
@@ -219,7 +219,7 @@ describe('REST api integration test', () => {
 
   describe('PUT: verify pin reset', () => {
     it('set time lock on key for 30 days', async () => {
-      const response = await client.put(`/v1/key/${keyId}/user/${phone}`, {
+      const response = await client.put(`/v1/key/${keyId}/user/${userId}`, {
         body: {
           code: code2,
           op: 'reset-pin'
@@ -234,13 +234,13 @@ describe('REST api integration test', () => {
   describe('DELETE: remove user', () => {
     it('not delete with wrong pin', async () => {
       client.auth('', pin1)
-      const response = await client.delete(`/v1/key/${keyId}/user/${phone}`)
+      const response = await client.delete(`/v1/key/${keyId}/user/${userId}`)
       expect(response.status, 'to be', 404)
     })
 
     it('delete user with correct pin', async () => {
       client.auth('', pin2)
-      const response = await client.delete(`/v1/key/${keyId}/user/${phone}`)
+      const response = await client.delete(`/v1/key/${keyId}/user/${userId}`)
       expect(response.status, 'to be', 200)
     })
   })
