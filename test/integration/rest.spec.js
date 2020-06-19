@@ -56,10 +56,22 @@ describe('REST api integration test', () => {
   })
 
   describe('GET: read key', () => {
+    it('return 400 for invalid key id', async () => {
+      client.auth('', pin1)
+      const response = await client.get('/v1/key/invalid')
+      expect(response.status, 'to be', 400)
+    })
+
     it('handle empty auth headers', async () => {
       client.auth()
       const response = await client.get(`/v1/key/${keyId}`)
       expect(response.status, 'to be', 400)
+    })
+
+    it('get 404 for wrong pin', async () => {
+      client.auth('', pin2)
+      const response = await client.get(`/v1/key/${keyId}`)
+      expect(response.status, 'to be', 404)
     })
 
     it('read encryption key', async () => {
@@ -73,6 +85,26 @@ describe('REST api integration test', () => {
   })
 
   describe('PUT: change pin', () => {
+    it('return 400 for invalid key id', async () => {
+      const response = await client.put('/v1/key/invalid', {
+        body: {
+          pin: pin1,
+          newPin: pin2
+        }
+      })
+      expect(response.status, 'to be', 400)
+    })
+
+    it('handle invalid pin', async () => {
+      const response = await client.put(`/v1/key/${keyId}`, {
+        body: {
+          pin: '123',
+          newPin: pin2
+        }
+      })
+      expect(response.status, 'to be', 400)
+    })
+
     it('handle invalid new pin', async () => {
       const response = await client.put(`/v1/key/${keyId}`, {
         body: {
@@ -120,11 +152,31 @@ describe('REST api integration test', () => {
   })
 
   describe('POST: create new user', () => {
+    it('return 400 for invalid key id', async () => {
+      const response = await client.post('/v1/key/invalid/user', {
+        body: {
+          userId,
+          pin: pin2
+        }
+      })
+      expect(response.status, 'to be', 400)
+    })
+
     it('return 400 for invalid user id', async () => {
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
           userId: 'invalid',
           pin: pin2
+        }
+      })
+      expect(response.status, 'to be', 400)
+    })
+
+    it('return 400 for invalid pin', async () => {
+      const response = await client.post(`/v1/key/${keyId}/user`, {
+        body: {
+          userId,
+          pin: ''
         }
       })
       expect(response.status, 'to be', 400)
@@ -157,6 +209,36 @@ describe('REST api integration test', () => {
   })
 
   describe('PUT: verify new user', () => {
+    it('return 400 for invalid user id', async () => {
+      const response = await client.put(`/v1/key/${keyId}/user/invalid`, {
+        body: {
+          code: code1,
+          op: 'verify'
+        }
+      })
+      expect(response.status, 'to be', 400)
+    })
+
+    it('return 400 for invalid key id', async () => {
+      const response = await client.put(`/v1/key/invalid/user/${userId}`, {
+        body: {
+          code: code1,
+          op: 'verify'
+        }
+      })
+      expect(response.status, 'to be', 400)
+    })
+
+    it('return 400 for invalid code', async () => {
+      const response = await client.put(`/v1/key/${keyId}/user/${userId}`, {
+        body: {
+          code: 'invalid',
+          op: 'verify'
+        }
+      })
+      expect(response.status, 'to be', 400)
+    })
+
     it('return 400 for invalid op', async () => {
       const response = await client.put(`/v1/key/${keyId}/user/${userId}`, {
         body: {
@@ -165,6 +247,16 @@ describe('REST api integration test', () => {
         }
       })
       expect(response.status, 'to be', 400)
+    })
+
+    it('return 404 for incorrect code', async () => {
+      const response = await client.put(`/v1/key/${keyId}/user/${userId}`, {
+        body: {
+          code: '000000',
+          op: 'verify'
+        }
+      })
+      expect(response.status, 'to be', 404)
     })
 
     it('verify user with correct op', async () => {
@@ -196,7 +288,12 @@ describe('REST api integration test', () => {
     })
 
     it('return 400 for invalid key id', async () => {
-      const response = await client.get(`/v1/key/invalid-key-id/user/${userId}/reset`)
+      const response = await client.get(`/v1/key/invalid/user/${userId}/reset`)
+      expect(response.status, 'to be', 400)
+    })
+
+    it('return 400 for invalid user id', async () => {
+      const response = await client.get(`/v1/key/${keyId}/user/invalid/reset`)
       expect(response.status, 'to be', 400)
     })
 
@@ -232,6 +329,24 @@ describe('REST api integration test', () => {
   })
 
   describe('DELETE: remove user', () => {
+    it('return 400 for invalid user id', async () => {
+      client.auth('', pin1)
+      const response = await client.delete(`/v1/key/${keyId}/user/invalid`)
+      expect(response.status, 'to be', 400)
+    })
+
+    it('return 400 for invalid key id', async () => {
+      client.auth('', pin1)
+      const response = await client.delete(`/v1/key/invalid/user/${userId}`)
+      expect(response.status, 'to be', 400)
+    })
+
+    it('return 400 for no pin', async () => {
+      client.auth()
+      const response = await client.delete(`/v1/key/${keyId}/user/${userId}`)
+      expect(response.status, 'to be', 400)
+    })
+
     it('not delete with wrong pin', async () => {
       client.auth('', pin1)
       const response = await client.delete(`/v1/key/${keyId}/user/${userId}`)
