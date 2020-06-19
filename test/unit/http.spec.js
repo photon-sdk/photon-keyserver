@@ -59,6 +59,22 @@ describe('HTTP Lib unit test', () => {
     })
   })
 
+  describe('auth', () => {
+    it('parse the auth parameters', async () => {
+      const event = { headers: { Authorization: 'Basic dXNlcjoxMjM0' } }
+      const { user, pass } = http.auth(event)
+      expect(user, 'to be', 'user')
+      expect(pass, 'to be', '1234')
+    })
+
+    it('return empty object for null', async () => {
+      const event = { headers: {} }
+      const { user, pass } = http.auth(event)
+      expect(user, 'to be', null)
+      expect(pass, 'to be', null)
+    })
+  })
+
   describe('response', () => {
     it('return stringified json response', async () => {
       const res = http.response(200, { foo: 'bar' })
