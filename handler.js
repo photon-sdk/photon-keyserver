@@ -79,8 +79,8 @@ exports.changePin = async (event) => {
 exports.createUser = async (event) => {
   try {
     const { keyId } = path(event)
-    const { phone, pin } = body(event)
-    if (!isId(keyId) || !isPhone(phone) || !isPin(pin)) {
+    const { userId, pin } = body(event)
+    if (!isId(keyId) || !isPhone(userId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }
     const { key, delay } = await keyDao.get({ id: keyId, pin })
@@ -90,12 +90,12 @@ exports.createUser = async (event) => {
     if (!key) {
       return error(404, 'Invalid params')
     }
-    const user = await userDao.getVerified({ phone })
+    const user = await userDao.getVerified({ userId, keyId })
     if (user) {
       return response(409, 'User id already exists')
     }
-    const code = await userDao.create({ phone, keyId: key.id })
-    await twilio.send({ phone, code })
+    const code = await userDao.create({ userId, keyId })
+    await twilio.send({ phone: userId, code })
     return response(201, 'Success')
   } catch (err) {
     return error(500, 'Error creating user', err)
@@ -104,12 +104,12 @@ exports.createUser = async (event) => {
 
 exports.verifyUser = async (event) => {
   try {
-    const { keyId, userId: phone } = path(event)
+    const { keyId, userId } = path(event)
     const { code, op, newPin } = body(event)
-    if (!isPhone(phone) || !isId(keyId) || !isCode(code) || !isOp(op)) {
+    if (!isPhone(userId) || !isId(keyId) || !isCode(code) || !isOp(op)) {
       return error(400, 'Invalid request')
     }
-    const { success, delay } = await userDao.verify({ phone, keyId, code, op })
+    const { success, delay } = await userDao.verify({ userId, keyId, code, op })
     if (delay) {
       return response(429, { message: 'Rate limit until', delay })
     }
@@ -133,15 +133,15 @@ exports.verifyUser = async (event) => {
 
 exports.resetPin = async (event) => {
   try {
-    const { keyId, userId: phone } = path(event)
-    if (!isPhone(phone) || !isId(keyId)) {
+    const { keyId, userId } = path(event)
+    if (!isPhone(userId) || !isId(keyId)) {
       return error(400, 'Invalid request')
     }
-    const code = await userDao.setNewCode({ phone, keyId, op: ops.RESET_PIN })
+    const code = await userDao.setNewCode({ userId, keyId, op: ops.RESET_PIN })
     if (!code) {
       return error(404, 'Invalid params')
     }
-    await twilio.send({ phone, code })
+    await twilio.send({ phone: userId, code })
     return response(200, 'Success')
   } catch (err) {
     return error(500, 'Error resetting pin', err)
@@ -150,9 +150,9 @@ exports.resetPin = async (event) => {
 
 exports.removeUser = async (event) => {
   try {
-    const { keyId, userId: phone } = path(event)
+    const { keyId, userId } = path(event)
     const pin = auth(event).pass
-    if (!isPhone(phone) || !isId(keyId) || !isPin(pin)) {
+    if (!isPhone(userId) || !isId(keyId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }
     const { key, delay } = await keyDao.get({ id: keyId, pin })
@@ -162,7 +162,7 @@ exports.removeUser = async (event) => {
     if (!key) {
       return error(404, 'Invalid params')
     }
-    await userDao.remove({ phone, keyId })
+    await userDao.remove({ userId, keyId })
     return response(200, 'Success')
   } catch (err) {
     return error(500, 'Error deleting user', err)
