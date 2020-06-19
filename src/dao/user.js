@@ -13,21 +13,19 @@ const { generateCode, createHash, generateSalt } = require('../lib/crypto')
  * Database documents have the format:
  * {
  *   id: '6Ec52IZrNB+te2YRdpIqVet4zzziz1ypu/iGyPF6DhA=', // hash of phone or email
- *   type: 'phone', // or 'email'
  *   keyId: '550e8400-e29b-11d4-a716-446655440000' // reference of the encryption key
- *   op: 'read', // the operation which needs to be verified with a code
+ *   op: 'verify', // the operation which needs to be verified with a code
  *   code: '123456', // random 6 char code used to prove ownership
  *   verified: true, // if the user ID has been verified
  * }
  */
 const TABLE = process.env.DYNAMODB_TABLE_USER
 
-exports.create = async ({ phone, keyId }) => {
+exports.create = async ({ userId, keyId }) => {
   const code = await generateCode()
-  const id = await _hashId(phone)
+  const id = await _hashId(userId)
   const user = {
     id,
-    type: 'phone',
     keyId,
     op: ops.VERIFY,
     code,
@@ -38,8 +36,8 @@ exports.create = async ({ phone, keyId }) => {
   return code
 }
 
-exports.verify = async ({ phone, keyId, code, op }) => {
-  const user = await this.get({ phone })
+exports.verify = async ({ userId, keyId, code, op }) => {
+  const user = await this.get({ userId })
   if (!user || user.keyId !== keyId || user.op !== op) {
     return { success: false }
   }
@@ -56,21 +54,21 @@ exports.verify = async ({ phone, keyId, code, op }) => {
   return { success: true }
 }
 
-exports.get = async ({ phone }) => {
-  const id = await _hashId(phone)
+exports.get = async ({ userId }) => {
+  const id = await _hashId(userId)
   return dynamo.get(TABLE, { id })
 }
 
-exports.getVerified = async ({ phone }) => {
-  const user = await this.get({ phone })
-  if (!user || !user.verified) {
+exports.getVerified = async ({ userId, keyId }) => {
+  const user = await this.get({ userId })
+  if (!user || user.keyId !== keyId || !user.verified) {
     return null
   }
   return user
 }
 
-exports.setNewCode = async ({ phone, keyId, op }) => {
-  const user = await this.get({ phone })
+exports.setNewCode = async ({ userId, keyId, op }) => {
+  const user = await this.get({ userId })
   if (!user || !user.verified || user.keyId !== keyId) {
     return null
   }
@@ -80,8 +78,8 @@ exports.setNewCode = async ({ phone, keyId, op }) => {
   return user.code
 }
 
-exports.remove = async ({ phone, keyId }) => {
-  const id = await _hashId(phone)
+exports.remove = async ({ userId, keyId }) => {
+  const id = await _hashId(userId)
   const user = await dynamo.get(TABLE, { id })
   if (!user || user.keyId !== keyId) {
     throw new Error('Can only delete user with matching key id')
