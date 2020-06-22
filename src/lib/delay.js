@@ -26,7 +26,7 @@ exports.checkRateLimit = doc => {
     doc.firstInvalid = new Date().toISOString()
   }
   doc.invalidCount++
-  const delay = this._delayUntil(doc.firstInvalid, 7) // one week
+  const delay = this._addDays(doc.firstInvalid, 7) // one week
   let rateLimit
   if (this._isRateLimit(doc.invalidCount) && !this._isDelayOver(delay)) {
     rateLimit = true
@@ -40,8 +40,6 @@ exports.checkRateLimit = doc => {
 }
 
 exports._isRateLimit = invalidCount => invalidCount > 10 // until rate limit is hit
-
-exports._delayUntil = (firstInvalid, days) => this._addDays(firstInvalid, days) // days until limit is lifted
 
 exports._isDelayOver = delay => delay <= new Date()
 
@@ -65,7 +63,7 @@ exports.resetTimeLock = doc => {
 exports.checkTimeLock = doc => {
   if (!doc.lockedUntil) {
     const now = new Date().toISOString()
-    doc.lockedUntil = this._delayUntil(now, 30).toISOString() // one month
+    doc.lockedUntil = this._addDays(now, 30).toISOString() // one month
   }
   const isLocked = !this._isDelayOver(new Date(doc.lockedUntil))
   return isLocked ? doc.lockedUntil : null
