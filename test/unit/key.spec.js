@@ -382,6 +382,28 @@ describe('Key DAO unit test', () => {
         invalidCount: 10
       })
     })
+
+    it('should not accept invalid new pin', async () => {
+      dynamo.get.resolves({
+        id,
+        encryptionKey,
+        pin: 'S4ysSX7HTDuI94BavlJV0EG2QKjYfiHseYrJ5J5fIK8=',
+        salt,
+        lockedUntil: '2020-06-01T03:33:47.980Z',
+        firstInvalid: null,
+        invalidCount: 10
+      })
+      const { success, delay } = await keyDao.resetPin({ id, newPin: '567' })
+      expect(success, 'to be', false)
+      expect(delay, 'to be', undefined)
+      expect(dynamo.put.callCount, 'to equal', 1)
+      sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
+        pin: 'S4ysSX7HTDuI94BavlJV0EG2QKjYfiHseYrJ5J5fIK8=',
+        lockedUntil: null,
+        firstInvalid: null,
+        invalidCount: 10
+      })
+    })
   })
 
   describe('remove', () => {
