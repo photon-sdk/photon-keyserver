@@ -38,6 +38,11 @@ exports.create = async ({ pin }) => {
   return id
 }
 
+exports.getSalt = async ({ id }) => {
+  const key = await dynamo.get(TABLE, { id })
+  return key ? key.salt : null
+}
+
 exports.get = async ({ id, pin }) => {
   const { key, delay } = await this._getKeyRateLimited({ id, pin })
   if (!key) {

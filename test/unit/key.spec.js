@@ -64,6 +64,25 @@ describe('Key DAO unit test', () => {
     })
   })
 
+  describe('getSalt', () => {
+    it('fail on dynamo error', async () => {
+      dynamo.get.rejects(new Error('boom'))
+      await expect(keyDao.getSalt({ id }), 'to be rejected with', 'boom')
+    })
+
+    it('return null if no key was found', async () => {
+      dynamo.get.resolves(null)
+      const s = await keyDao.getSalt({ id })
+      expect(s, 'to be', null)
+    })
+
+    it('return the key salt', async () => {
+      dynamo.get.resolves({ id, salt })
+      const s = await keyDao.getSalt({ id })
+      expect(s, 'to be', salt)
+    })
+  })
+
   describe('get', () => {
     it('fail on dynamo error', async () => {
       dynamo.get.rejects(new Error('boom'))
