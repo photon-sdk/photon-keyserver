@@ -90,11 +90,12 @@ exports.createUser = async (event) => {
     if (!key) {
       return error(404, 'Invalid params')
     }
-    const user = await userDao.getVerified({ userId, keyId })
+    const { salt } = key
+    const user = await userDao.getVerified({ userId, salt })
     if (user) {
       return response(409, 'User id already exists')
     }
-    const code = await userDao.create({ userId, keyId })
+    const code = await userDao.create({ userId, salt })
     await twilio.send({ phone: userId, code })
     return response(201, 'Success')
   } catch (err) {
@@ -109,7 +110,11 @@ exports.verifyUser = async (event) => {
     if (!isPhone(userId) || !isId(keyId) || !isCode(code) || !isOp(op)) {
       return error(400, 'Invalid request')
     }
-    const { success, delay } = await userDao.verify({ userId, keyId, code, op })
+    const salt = await keyDao.getSalt({ id: keyId })
+    if (!salt) {
+      return error(404, 'Invalid params')
+    }
+    const { success, delay } = await userDao.verify({ userId, salt, code, op })
     if (delay) {
       return response(429, { message: 'Rate limit until', delay })
     }
@@ -137,7 +142,11 @@ exports.resetPin = async (event) => {
     if (!isPhone(userId) || !isId(keyId)) {
       return error(400, 'Invalid request')
     }
-    const code = await userDao.setNewCode({ userId, keyId, op: ops.RESET_PIN })
+    const salt = await keyDao.getSalt({ id: keyId })
+    if (!salt) {
+      return error(404, 'Invalid params')
+    }
+    const code = await userDao.setNewCode({ userId, salt, op: ops.RESET_PIN })
     if (!code) {
       return error(404, 'Invalid params')
     }
@@ -162,7 +171,8 @@ exports.removeUser = async (event) => {
     if (!key) {
       return error(404, 'Invalid params')
     }
-    await userDao.remove({ userId, keyId })
+    const { salt } = key
+    await userDao.remove({ userId, salt })
     return response(200, 'Success')
   } catch (err) {
     return error(500, 'Error deleting user', err)
