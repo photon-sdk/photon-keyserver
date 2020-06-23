@@ -86,9 +86,9 @@ describe('REST api integration test', () => {
 
   describe('PUT: change pin', () => {
     it('return 400 for invalid key id', async () => {
+      client.auth('', pin1)
       const response = await client.put('/v1/key/invalid', {
         body: {
-          pin: pin1,
           newPin: pin2
         }
       })
@@ -96,9 +96,9 @@ describe('REST api integration test', () => {
     })
 
     it('handle invalid pin', async () => {
+      client.auth('', '123')
       const response = await client.put(`/v1/key/${keyId}`, {
         body: {
-          pin: '123',
           newPin: pin2
         }
       })
@@ -106,9 +106,9 @@ describe('REST api integration test', () => {
     })
 
     it('handle invalid new pin', async () => {
+      client.auth('', pin1)
       const response = await client.put(`/v1/key/${keyId}`, {
         body: {
-          pin: pin1,
           newPin: '567'
         }
       })
@@ -116,9 +116,9 @@ describe('REST api integration test', () => {
     })
 
     it('should not find with wrong pin', async () => {
+      client.auth('', pin2)
       const response = await client.put(`/v1/key/${keyId}`, {
         body: {
-          pin: pin2,
           newPin: pin2
         }
       })
@@ -126,9 +126,9 @@ describe('REST api integration test', () => {
     })
 
     it('change to another pin', async () => {
+      client.auth('', pin1)
       const response = await client.put(`/v1/key/${keyId}`, {
         body: {
-          pin: pin1,
           newPin: pin2
         }
       })
@@ -153,50 +153,50 @@ describe('REST api integration test', () => {
 
   describe('POST: create new user', () => {
     it('return 400 for invalid key id', async () => {
+      client.auth('', pin2)
       const response = await client.post('/v1/key/invalid/user', {
         body: {
-          userId,
-          pin: pin2
+          userId
         }
       })
       expect(response.status, 'to be', 400)
     })
 
     it('return 400 for invalid user id', async () => {
+      client.auth('', pin2)
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          userId: 'invalid',
-          pin: pin2
+          userId: 'invalid'
         }
       })
       expect(response.status, 'to be', 400)
     })
 
     it('return 400 for invalid pin', async () => {
+      client.auth('', '')
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          userId,
-          pin: ''
+          userId
         }
       })
       expect(response.status, 'to be', 400)
     })
 
     it('old pin should not work anymore', async () => {
+      client.auth('', pin1)
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          userId,
-          pin: pin1
+          userId
         }
       })
       expect(response.status, 'to be', 404)
     })
 
     it('should create new user', async () => {
+      client.auth('', pin2)
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          userId,
-          pin: pin2
+          userId
         }
       })
       expect(response.status, 'to be', 201)
@@ -273,10 +273,10 @@ describe('REST api integration test', () => {
 
   describe('POST: create user again', () => {
     it('should return 409 if user id already exists', async () => {
+      client.auth('', pin2)
       const response = await client.post(`/v1/key/${keyId}/user`, {
         body: {
-          userId,
-          pin: pin2
+          userId
         }
       })
       expect(response.status, 'to be', 409)

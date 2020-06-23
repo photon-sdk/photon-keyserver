@@ -33,8 +33,8 @@ exports.createKey = async (event) => {
 
 exports.getKey = async (event) => {
   try {
-    const { keyId } = path(event)
     const pin = auth(event).pass
+    const { keyId } = path(event)
     if (!isId(keyId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }
@@ -54,8 +54,9 @@ exports.getKey = async (event) => {
 
 exports.changePin = async (event) => {
   try {
+    const pin = auth(event).pass
     const { keyId } = path(event)
-    const { pin, newPin } = body(event)
+    const { newPin } = body(event)
     if (!isId(keyId) || !isPin(pin) || !isPin(newPin)) {
       return error(400, 'Invalid request')
     }
@@ -78,8 +79,9 @@ exports.changePin = async (event) => {
 
 exports.createUser = async (event) => {
   try {
+    const pin = auth(event).pass
     const { keyId } = path(event)
-    const { userId, pin } = body(event)
+    const { userId } = body(event)
     if (!isId(keyId) || !isPhone(userId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }
@@ -159,8 +161,8 @@ exports.resetPin = async (event) => {
 
 exports.removeUser = async (event) => {
   try {
-    const { keyId, userId } = path(event)
     const pin = auth(event).pass
+    const { keyId, userId } = path(event)
     if (!isPhone(userId) || !isId(keyId) || !isPin(pin)) {
       return error(400, 'Invalid request')
     }
