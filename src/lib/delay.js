@@ -11,6 +11,7 @@ const { isDateISOString } = require('../lib/verify')
 /**
  * Database documents have the format:
  * {
+ *   lockedUntil: '2020-07-09T03:33:47.980Z', // pin reset is locked until this time
  *   firstInvalid: '2020-06-09T03:33:47.980Z', // time of first failed verify request
  *   invalidCount: 3, // the number of failed verify requests (including firstInvalid)
  * }
