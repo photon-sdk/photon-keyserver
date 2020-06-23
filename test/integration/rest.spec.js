@@ -203,7 +203,8 @@ describe('REST api integration test', () => {
     })
 
     after(async () => {
-      code1 = (await userDao.get({ userId })).code
+      const salt = await keyDao.getSalt({ id: keyId })
+      code1 = (await userDao.get({ userId, salt })).code
       expect(code1, 'to be ok')
     })
   })
@@ -308,7 +309,8 @@ describe('REST api integration test', () => {
     })
 
     after(async () => {
-      code2 = (await userDao.get({ userId })).code
+      const salt = await keyDao.getSalt({ id: keyId })
+      code2 = (await userDao.get({ userId, salt })).code
       expect(code2, 'to be ok')
       expect(code2, 'not to be', code1)
     })
