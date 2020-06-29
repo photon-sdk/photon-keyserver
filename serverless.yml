@@ -15,8 +15,8 @@ provider:
     TWILIO_ACCOUNT_SID: ${param:TWILIO_ACCOUNT_SID}
     TWILIO_AUTH_TOKEN: ${param:TWILIO_AUTH_TOKEN}
     TWILIO_FROM_NUMBER: ${param:TWILIO_FROM_NUMBER}
-    DYNAMODB_TABLE_KEY: ${self:service}-${opt:stage, self:provider.stage}-key-v2
-    DYNAMODB_TABLE_USER: ${self:service}-${opt:stage, self:provider.stage}-user-v2
+    DYNAMODB_TABLE_KEY: ${self:service}-${opt:stage, self:provider.stage}-key
+    DYNAMODB_TABLE_USER: ${self:service}-${opt:stage, self:provider.stage}-user
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -31,43 +31,43 @@ provider:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_USER}"
 
 functions:
-  createKeyV2:
+  createKey:
     handler: handler.createKey
     events:
      - http:
          path: /v2/key
          method: post
-  getKeyV2:
+  getKey:
     handler: handler.getKey
     events:
      - http:
          path: /v2/key/{keyId}
          method: get
-  changePinV2:
+  changePin:
     handler: handler.changePin
     events:
      - http:
          path: /v2/key/{keyId}
          method: put
-  createUserV2:
+  createUser:
     handler: handler.createUser
     events:
      - http:
          path: /v2/key/{keyId}/user
          method: post
-  verifyUserV2:
+  verifyUser:
     handler: handler.verifyUser
     events:
      - http:
          path: /v2/key/{keyId}/user/{userId}
          method: put
-  resetPinV2:
+  resetPin:
     handler: handler.resetPin
     events:
      - http:
          path: /v2/key/{keyId}/user/{userId}/reset
          method: get
-  removeUserV2:
+  removeUser:
     handler: handler.removeUser
     events:
      - http:

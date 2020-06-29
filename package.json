@@ -12,7 +12,7 @@
     "test": "npm run test:lint && npm run test:unit && npm run test:ci",
     "test:lint": "standard *.js 'src/**/*.js' 'test/**/*.js'",
     "test:unit": "mocha test/unit/",
-    "test:integration": "IS_OFFLINE=true DYNAMODB_TABLE_KEY=photon-keyserver-dev-key-v2 DYNAMODB_TABLE_USER=photon-keyserver-dev-user-v2 mocha test/integration/",
+    "test:integration": "IS_OFFLINE=true DYNAMODB_TABLE_KEY=photon-keyserver-dev-key DYNAMODB_TABLE_USER=photon-keyserver-dev-user mocha test/integration/",
     "test:ci": "npm start & P1=$! && wait-on tcp:3000 && npm run test:integration && kill $P1"
   },
   "dependencies": {
