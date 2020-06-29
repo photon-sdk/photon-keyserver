@@ -63,14 +63,20 @@ exports.changePin = async ({ id, pin, newPin }) => {
 }
 
 exports.resetPin = async ({ id, newPin }) => {
-  const { key, delay } = await this._getKeyTimeLocked({ id })
+  const key = await dynamo.get(TABLE, { id })
   if (!key) {
+    return { success: false }
+  }
+  const delay = checkTimeLock(key)
+  await dynamo.put(TABLE, key)
+  if (delay) {
     return { success: false, delay }
   }
   if (!isPin(newPin)) {
     return { success: false }
   }
   key.pin = await _hashPin(newPin, key.salt)
+  resetTimeLock(key)
   await dynamo.put(TABLE, key)
   return { success: true }
 }
@@ -100,20 +106,6 @@ exports._getKeyRateLimited = async ({ id, pin }) => {
     return { key: null, delay }
   }
   resetRateLimit(key)
-  return { key }
-}
-
-exports._getKeyTimeLocked = async ({ id }) => {
-  const key = await dynamo.get(TABLE, { id })
-  if (!key) {
-    return { key: null }
-  }
-  const delay = checkTimeLock(key)
-  await dynamo.put(TABLE, key)
-  if (delay) {
-    return { key: null, delay }
-  }
-  resetTimeLock(key)
   return { key }
 }
 

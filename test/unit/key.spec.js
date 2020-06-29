@@ -380,28 +380,6 @@ describe('Key DAO unit test', () => {
       })
     })
 
-    it('reset time lock and update pin after delay', async () => {
-      dynamo.get.resolves({
-        id,
-        encryptionKey,
-        pin: 'S4ysSX7HTDuI94BavlJV0EG2QKjYfiHseYrJ5J5fIK8=',
-        salt,
-        lockedUntil: '2020-06-01T03:33:47.980Z',
-        firstInvalid: null,
-        invalidCount: 10
-      })
-      const { success, delay } = await keyDao.resetPin({ id, newPin })
-      expect(success, 'to be', true)
-      expect(delay, 'to be', undefined)
-      expect(dynamo.put.callCount, 'to equal', 2)
-      sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
-        pin: 'Y5mBdHc6k0/xo8LlAT7XhjksPbVv/AvG8p8bteoPJxU=',
-        lockedUntil: null,
-        firstInvalid: null,
-        invalidCount: 10
-      })
-    })
-
     it('should not accept invalid new pin', async () => {
       dynamo.get.resolves({
         id,
@@ -418,6 +396,28 @@ describe('Key DAO unit test', () => {
       expect(dynamo.put.callCount, 'to equal', 1)
       sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
         pin: 'S4ysSX7HTDuI94BavlJV0EG2QKjYfiHseYrJ5J5fIK8=',
+        lockedUntil: '2020-06-01T03:33:47.980Z',
+        firstInvalid: null,
+        invalidCount: 10
+      })
+    })
+
+    it('reset time lock and update pin after delay', async () => {
+      dynamo.get.resolves({
+        id,
+        encryptionKey,
+        pin: 'S4ysSX7HTDuI94BavlJV0EG2QKjYfiHseYrJ5J5fIK8=',
+        salt,
+        lockedUntil: '2020-06-01T03:33:47.980Z',
+        firstInvalid: null,
+        invalidCount: 10
+      })
+      const { success, delay } = await keyDao.resetPin({ id, newPin })
+      expect(success, 'to be', true)
+      expect(delay, 'to be', undefined)
+      expect(dynamo.put.callCount, 'to equal', 2)
+      sinon.assert.calledWithMatch(dynamo.put, sinon.match.any, {
+        pin: 'Y5mBdHc6k0/xo8LlAT7XhjksPbVv/AvG8p8bteoPJxU=',
         lockedUntil: null,
         firstInvalid: null,
         invalidCount: 10

@@ -129,7 +129,7 @@ exports.verifyUser = async (event) => {
         return response(423, { message: 'Time locked until', delay })
       }
       if (!success) {
-        return error(404, 'Invalid params')
+        return error(304, 'Invalid new pin')
       }
     }
     return response(200, 'Success')
