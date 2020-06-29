@@ -24,6 +24,17 @@ exports.query = event => {
   return query
 }
 
+exports.auth = event => {
+  const basic = 'Basic '
+  if (!event.headers.Authorization || !event.headers.Authorization.includes(basic)) {
+    return { user: null, pass: null }
+  }
+  const authBase64 = event.headers.Authorization.replace('Basic ', '')
+  const authStr = Buffer.from(authBase64, 'base64').toString('utf8')
+  const [user, pass] = authStr.split(':')
+  return { user, pass }
+}
+
 exports.response = (status, body = {}) => ({
   statusCode: status,
   body: JSON.stringify(typeof body === 'string' ? { message: body } : body)

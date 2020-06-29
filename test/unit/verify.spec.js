@@ -8,11 +8,11 @@ const verify = require('../../src/lib/verify')
 describe('Verify Lib unit test', () => {
   describe('isOp', () => {
     it('returns true for a string op', () => {
-      expect(verify.isOp('read'), 'to be', true)
+      expect(verify.isOp('verify'), 'to be', true)
     })
 
     it('returns true for a enum ops', () => {
-      expect(verify.isOp(verify.ops.READ), 'to be', true)
+      expect(verify.isOp(verify.ops.VERIFY), 'to be', true)
     })
 
     it('returns false for an op', () => {
