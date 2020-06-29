@@ -31,47 +31,47 @@ provider:
         - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE_USER}"
 
 functions:
-  createKey:
+  createKeyV2:
     handler: handler.createKey
     events:
      - http:
-         path: /v1/key
+         path: /v2/key
          method: post
-  getKey:
+  getKeyV2:
     handler: handler.getKey
     events:
      - http:
-         path: /v1/key/{keyId}
+         path: /v2/key/{keyId}
          method: get
-  changePin:
+  changePinV2:
     handler: handler.changePin
     events:
      - http:
-         path: /v1/key/{keyId}
+         path: /v2/key/{keyId}
          method: put
-  createUser:
+  createUserV2:
     handler: handler.createUser
     events:
      - http:
-         path: /v1/key/{keyId}/user
+         path: /v2/key/{keyId}/user
          method: post
-  verifyUser:
+  verifyUserV2:
     handler: handler.verifyUser
     events:
      - http:
-         path: /v1/key/{keyId}/user/{userId}
+         path: /v2/key/{keyId}/user/{userId}
          method: put
-  resetPin:
+  resetPinV2:
     handler: handler.resetPin
     events:
      - http:
-         path: /v1/key/{keyId}/user/{userId}/reset
+         path: /v2/key/{keyId}/user/{userId}/reset
          method: get
-  removeUser:
+  removeUserV2:
     handler: handler.removeUser
     events:
      - http:
-         path: /v1/key/{keyId}/user/{userId}
+         path: /v2/key/{keyId}/user/{userId}
          method: delete
 
 resources:
