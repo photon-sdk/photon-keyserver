@@ -6,13 +6,15 @@
 
 const keyDao = require('./src/dao/key')
 const userDao = require('./src/dao/user')
+const email = require('./src/service/email')
 const twilio = require('./src/service/twilio')
 const dynamo = require('./src/service/dynamodb')
 const { path, body, auth, response, error } = require('./src/lib/http')
-const { ops, isOp, isPhone, isCode, isId, isPin } = require('./src/lib/verify')
+const { ops, isOp, isPhone, isEmail, isCode, isId, isPin } = require('./src/lib/verify')
 
 dynamo.init()
 twilio.init()
+email.init()
 
 //
 // Key functions
@@ -82,7 +84,11 @@ exports.createUser = async (event) => {
     const pin = auth(event).pass
     const { keyId } = path(event)
     const { userId } = body(event)
-    if (!isId(keyId) || !isPhone(userId) || !isPin(pin)) {
+    if (
+      (!isPhone(userId) && !isEmail(userId)) ||
+      !isId(keyId) ||
+      !isPin(pin)
+    ) {
       return error(400, 'Invalid request')
     }
     const { key, delay } = await keyDao.get({ id: keyId, pin })
@@ -98,7 +104,11 @@ exports.createUser = async (event) => {
       return response(409, 'User id already exists')
     }
     const code = await userDao.create({ userId, salt })
-    await twilio.send({ phone: userId, code })
+    if (isPhone(userId)) {
+      await twilio.send({ userId, code })
+    } else {
+      await email.send({ userId, code })
+    }
     return response(201, 'Success')
   } catch (err) {
     return error(500, 'Error creating user', err)
@@ -109,7 +119,12 @@ exports.verifyUser = async (event) => {
   try {
     const { keyId, userId } = path(event)
     const { code, op, newPin } = body(event)
-    if (!isPhone(userId) || !isId(keyId) || !isCode(code) || !isOp(op)) {
+    if (
+      (!isPhone(userId) && !isEmail(userId)) ||
+      !isId(keyId) ||
+      !isCode(code) ||
+      !isOp(op)
+    ) {
       return error(400, 'Invalid request')
     }
     const salt = await keyDao.getSalt({ id: keyId })
@@ -141,7 +156,10 @@ exports.verifyUser = async (event) => {
 exports.resetPin = async (event) => {
   try {
     const { keyId, userId } = path(event)
-    if (!isPhone(userId) || !isId(keyId)) {
+    if (
+      (!isPhone(userId) && !isEmail(userId)) ||
+      !isId(keyId)
+    ) {
       return error(400, 'Invalid request')
     }
     const salt = await keyDao.getSalt({ id: keyId })
@@ -152,7 +170,11 @@ exports.resetPin = async (event) => {
     if (!code) {
       return error(404, 'Invalid params')
     }
-    await twilio.send({ phone: userId, code })
+    if (isPhone(userId)) {
+      await twilio.send({ userId, code })
+    } else {
+      await email.send({ userId, code })
+    }
     return response(200, 'Success')
   } catch (err) {
     return error(500, 'Error resetting pin', err)
@@ -163,7 +185,11 @@ exports.removeUser = async (event) => {
   try {
     const pin = auth(event).pass
     const { keyId, userId } = path(event)
-    if (!isPhone(userId) || !isId(keyId) || !isPin(pin)) {
+    if (
+      (!isPhone(userId) && !isEmail(userId)) ||
+      !isId(keyId) ||
+      !isPin(pin)
+    ) {
       return error(400, 'Invalid request')
     }
     const { key, delay } = await keyDao.get({ id: keyId, pin })
