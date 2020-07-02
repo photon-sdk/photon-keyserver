@@ -15,6 +15,8 @@ provider:
     TWILIO_ACCOUNT_SID: ${param:TWILIO_ACCOUNT_SID}
     TWILIO_AUTH_TOKEN: ${param:TWILIO_AUTH_TOKEN}
     TWILIO_FROM_NUMBER: ${param:TWILIO_FROM_NUMBER}
+    SES_FROM_EMAIL: ${param:SES_FROM_EMAIL}
+    SES_REGION: ${opt:region, self:provider.region}
     DYNAMODB_TABLE_KEY: ${self:service}-${opt:stage, self:provider.stage}-key
     DYNAMODB_TABLE_USER: ${self:service}-${opt:stage, self:provider.stage}-user
   iamRoleStatements:
