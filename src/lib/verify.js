@@ -9,26 +9,26 @@ exports.ops = Object.freeze({
   RESET_PIN: 'reset-pin'
 })
 
-exports.isOp = op => {
-  return Object.values(this.ops).includes(op)
+exports.isOp = o => {
+  return Object.values(this.ops).includes(o)
 }
 
-exports.isPhone = phone => {
-  return /^\+[1-9]\d{1,14}$/.test(phone)
+exports.isPhone = o => {
+  return /^\+[1-9]\d{1,14}$/.test(o)
 }
 
-exports.isCode = code => {
-  return /^\d{6}$/.test(code)
+exports.isCode = o => {
+  return /^\d{6}$/.test(o)
 }
 
-exports.isId = id => {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(id)
+exports.isId = o => {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(o)
 }
 
-exports.isPin = pin => {
-  return pin ? /^.{4,256}$/.test(pin) : false
+exports.isPin = o => {
+  return o ? /^.{4,256}$/.test(o) : false
 }
 
-exports.isDateISOString = str => {
-  return /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)$/.test(str)
+exports.isDateISOString = o => {
+  return /^\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z)$/.test(o)
 }
