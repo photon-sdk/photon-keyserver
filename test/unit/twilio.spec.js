@@ -8,7 +8,7 @@ const twilio = require('../../src/service/twilio')
 
 describe('Twilio Service unit test', () => {
   let clientStub
-  const phone = '+4917512345678'
+  const userId = '+4917512345678'
   const code = '123456'
 
   beforeEach(() => {
@@ -23,11 +23,11 @@ describe('Twilio Service unit test', () => {
 
     it('fail on twilio error', async () => {
       clientStub.messages.create.rejects(new Error('boom'))
-      await expect(twilio.send({ phone, code }), 'to be rejected with', /boom/)
+      await expect(twilio.send({ userId, code }), 'to be rejected with', /boom/)
     })
 
     it('send sms message', async () => {
-      await twilio.send({ phone, code })
+      await twilio.send({ userId, code })
       expect(clientStub.messages.create.callCount, 'to be', 1)
     })
   })

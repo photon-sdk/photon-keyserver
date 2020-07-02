@@ -21,12 +21,12 @@ exports.init = (clientStub) => {
   }
 }
 
-exports.send = async ({ phone, code }) => {
-  if (!isPhone(phone) || !isCode(code)) {
+exports.send = async ({ userId, code }) => {
+  if (!isPhone(userId) || !isCode(code)) {
     throw new Error('Invalid args')
   }
   const sms = {
-    to: phone,
+    to: userId,
     body: `Your verification code is: ${code}`,
     from: process.env.TWILIO_FROM_NUMBER
   }
