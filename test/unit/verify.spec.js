@@ -62,6 +62,40 @@ describe('Verify Lib unit test', () => {
     })
   })
 
+  describe('isEmail', () => {
+    it('returns true for a valid email address', () => {
+      expect(verify.isEmail('jon.smith@example.com'), 'to be', true)
+    })
+
+    it('returns false for an invalid email address', () => {
+      expect(verify.isEmail('@example.com'), 'to be', false)
+    })
+
+    it('returns false for an invalid email address', () => {
+      expect(verify.isEmail('jon.smith@examplecom'), 'to be', false)
+    })
+
+    it('returns false for an invalid email address', () => {
+      expect(verify.isEmail('jon.smithexample.com'), 'to be', false)
+    })
+
+    it('returns false for null', () => {
+      expect(verify.isEmail(null), 'to be', false)
+    })
+
+    it('returns false for undefined', () => {
+      expect(verify.isEmail(undefined), 'to be', false)
+    })
+
+    it('returns false for object', () => {
+      expect(verify.isEmail({}), 'to be', false)
+    })
+
+    it('returns false for empty string', () => {
+      expect(verify.isEmail(''), 'to be', false)
+    })
+  })
+
   describe('isCode', () => {
     it('returns true for a valid code', () => {
       expect(verify.isCode('000000'), 'to be', true)

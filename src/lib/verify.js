@@ -17,6 +17,11 @@ exports.isPhone = o => {
   return /^\+[1-9]\d{1,14}$/.test(o)
 }
 
+exports.isEmail = o => {
+  const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+  return re.test(o)
+}
+
 exports.isCode = o => {
   return /^\d{6}$/.test(o)
 }
