@@ -3,6 +3,7 @@ app: photon-keyserver
 org: hasedev
 
 plugins:
+  - serverless-domain-manager
   - serverless-dynamodb-local
   - serverless-offline
 
@@ -114,6 +115,16 @@ resources:
         TableName: ${self:provider.environment.DYNAMODB_TABLE_USER}
 
 custom:
+  customDomain:
+    domainName: keys.mymattress.io
+    certificateName: '*.mymattress.io'
+    basePath: ''
+    stage: ${self:provider.stage}
+    createRoute53Record: true
+    endpointType: 'regional'
+    securityPolicy: tls_1_2
+    apiType: rest
+    autoDomain: false
   dynamodb:
     stages:
       - dev
