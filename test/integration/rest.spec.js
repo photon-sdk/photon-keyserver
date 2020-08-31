@@ -20,7 +20,7 @@ describe('REST api integration test', () => {
   before(async () => {
     dynamo.init()
     client = new Frisbee({
-      baseURI: 'http://localhost:3000/dev',
+      baseURI: 'http://localhost:3000/prod',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json'

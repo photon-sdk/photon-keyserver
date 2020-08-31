@@ -10,7 +10,7 @@ plugins:
 provider:
   name: aws
   runtime: nodejs12.x
-  stage: dev
+  stage: prod
   region: eu-central-1
   environment:
     TWILIO_ACCOUNT_SID: ${param:TWILIO_ACCOUNT_SID}
@@ -127,7 +127,7 @@ custom:
     autoDomain: false
   dynamodb:
     stages:
-      - dev
+      - prod
     start:
       port: 8000
       inMemory: true
