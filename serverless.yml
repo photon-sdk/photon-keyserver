@@ -116,7 +116,7 @@ resources:
 
 custom:
   customDomain:
-    domainName: api.mymattress.io
+    domainName: keys.mymattress.io
     certificateName: '*.mymattress.io'
     basePath: ''
     stage: ${self:provider.stage}
