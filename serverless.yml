@@ -119,7 +119,7 @@ resources:
 
 custom:
   customDomain:
-    domainName: keys.photonsdk.com
+    domainName: keys-dev.photonsdk.com
     certificateName: '*.photonsdk.com'
     basePath: ''
     stage: ${self:provider.stage}
