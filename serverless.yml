@@ -1,4 +1,4 @@
-service: photon-keyserver
+service: photonsdk-keyserver
 app: photonsdk
 org: hasedev
 
