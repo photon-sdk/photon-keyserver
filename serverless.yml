@@ -1,5 +1,5 @@
 service: photon-keyserver
-app: photon-keyserver
+app: photonsdk
 org: hasedev
 
 plugins:
