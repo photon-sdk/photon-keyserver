@@ -21,6 +21,7 @@
     "uuid": "^7.0.2"
   },
   "devDependencies": {
+    "dynamodb-localhost": "https://github.com/99x/dynamodb-localhost#db30898f8c40932c7177be7b2f1a81360d12876d",
     "frisbee": "^3.1.2",
     "mocha": "^7.1.1",
     "serverless": "^1.81.1",
@@ -31,10 +32,5 @@
     "standard": "^14.3.3",
     "unexpected": "^11.14.0",
     "wait-on": "^4.0.1"
-  },
-  "overrides": {
-    "serverless-dynamodb-local": {
-      "dynamodb-localhost": "https://github.com/99x/dynamodb-localhost#db30898f8c40932c7177be7b2f1a81360d12876d"
-    }
   }
 }
