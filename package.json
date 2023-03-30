@@ -24,7 +24,7 @@
     "dynamodb-localhost": "https://github.com/99x/dynamodb-localhost#db30898f8c40932c7177be7b2f1a81360d12876d",
     "frisbee": "^3.1.2",
     "mocha": "^7.1.1",
-    "serverless": "^1.81.1",
+    "serverless": "^3.29.0",
     "serverless-domain-manager": "^4.2.0",
     "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^6.1.4",
