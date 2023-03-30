@@ -1,5 +1,5 @@
 service: photon-keyserver
-app: photon-keyserver
+app: photonsdk
 org: hasedev
 
 plugins:
@@ -116,8 +116,8 @@ resources:
 
 custom:
   customDomain:
-    domainName: keys.mymattress.io
-    certificateName: '*.mymattress.io'
+    domainName: keys.photonsdk.com
+    certificateName: '*.photonsdk.com'
     basePath: ''
     stage: ${self:provider.stage}
     createRoute53Record: true
