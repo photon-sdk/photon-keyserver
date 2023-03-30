@@ -16,7 +16,7 @@
     "test:ci": "npm start & P1=$! && wait-on tcp:3000 && npm run test:integration && kill $P1"
   },
   "dependencies": {
-    "aws-sdk": "^2.635.0",
+    "aws-sdk": "^2.1346.0",
     "twilio": "^3.40.0",
     "uuid": "^7.0.2"
   },
@@ -26,7 +26,7 @@
     "mocha": "^7.1.1",
     "serverless": "^1.81.1",
     "serverless-domain-manager": "^4.2.0",
-    "serverless-dynamodb-local": "^0.2.39",
+    "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^6.1.4",
     "sinon": "^9.0.1",
     "standard": "^14.3.3",
