@@ -1,4 +1,4 @@
-# photon-keyserver [![Build Status](https://travis-ci.org/photon-sdk/photon-keyserver.svg?branch=master)](https://travis-ci.org/photon-sdk/photon-keyserver)
+# photon-keyserver ![Node.js CI](https://github.com/photon-sdk/photon-keyserver/workflows/Node.js%20CI/badge.svg?branch=master)
 2FA server for encrypted private key backup
 
 ## Usage & API docs
