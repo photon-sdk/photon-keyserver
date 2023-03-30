@@ -10,6 +10,10 @@ If you want to use the REST api directly, the [keyserver](https://github.com/pho
 ## Setup
 
 ```bash
+nvm use
+```
+
+```bash
 npm install
 ```
 
