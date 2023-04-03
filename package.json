@@ -18,7 +18,7 @@
   "dependencies": {
     "aws-sdk": "^2.1348.0",
     "twilio": "^3.40.0",
-    "uuid": "^7.0.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "dynamodb-localhost": "https://github.com/99x/dynamodb-localhost#db30898f8c40932c7177be7b2f1a81360d12876d",
