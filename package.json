@@ -29,7 +29,7 @@
     "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^6.1.4",
     "sinon": "^15.0.3",
-    "standard": "^14.3.3",
+    "standard": "^17.0.0",
     "unexpected": "^11.14.0",
     "wait-on": "^4.0.1"
   }
