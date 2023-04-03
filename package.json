@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "dynamodb-localhost": "https://github.com/99x/dynamodb-localhost#db30898f8c40932c7177be7b2f1a81360d12876d",
-    "frisbee": "^3.1.4",
+    "frisbee": "^3.1.0",
     "mocha": "^10.2.0",
     "serverless": "^3.29.0",
     "serverless-domain-manager": "^7.0.2",
