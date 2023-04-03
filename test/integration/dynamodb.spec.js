@@ -6,7 +6,7 @@ const expect = require('unexpected')
 const dynamo = require('../../src/service/dynamodb')
 
 describe('DynamoDB Service integration test', () => {
-  const TABLE = 'photon-keyserver-prod-key'
+  const TABLE = 'photonsdk-keyserver-prod-key'
 
   before(async () => {
     dynamo.init()
