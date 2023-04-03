@@ -30,7 +30,7 @@
     "serverless-offline": "^6.1.4",
     "sinon": "^15.0.3",
     "standard": "^17.0.0",
-    "unexpected": "^11.14.0",
+    "unexpected": "^13.1.0",
     "wait-on": "^4.0.1"
   }
 }
