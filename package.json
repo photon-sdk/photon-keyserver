@@ -16,7 +16,7 @@
     "test:ci": "npm start & P1=$! && wait-on tcp:3000 && npm run test:integration && kill $P1"
   },
   "dependencies": {
-    "aws-sdk": "^2.1348.0",
+    "aws-sdk": "^2.1354.0",
     "twilio": "^4.9.0",
     "uuid": "^9.0.0"
   },
